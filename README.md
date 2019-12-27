@@ -1,6 +1,6 @@
 # crawlergo
 
-![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg)![Chromium version](https://img.shields.io/badge/chromium-79.0.3945.0-important.svg)![SKP](https://img.shields.io/badge/Project-360天相-blue.svg)
+![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg) ![Chromium version](https://img.shields.io/badge/chromium-79.0.3945.0-important.svg) ![SKP](https://img.shields.io/badge/Project-360天相-blue.svg)
 
 > A powerful dynamic crawler for web vulnerability scanners
 
@@ -19,7 +19,7 @@ crawlergo 目前支持以下特性：
 
 ## 运行截图
 
-![](D:\go_projects\crawlergo\imgs\demo.gif)
+![](./imgs/demo.gif)
 
 ## 安装
 
@@ -96,13 +96,13 @@ crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
 
 https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html
 
-![](D:\go_projects\crawlergo\imgs\bypass.png)
+![](./imgs/bypass.png)
 
 ## 关于360天相
 
 crawlergo是[**360天相**](https://skp.360.cn/)的子模块，天相是360自研的**资产管理与威胁探测系统**，主打强大的资产识别能力和全方位分析体系，拥有高效率的扫描能力，核心技术由 [360 0KeeTeam](https://0kee.360.cn/) 和 **360 RedTeam** 提供支持。
 
-![](D:\go_projects\crawlergo\imgs\skp.png)
+![](./imgs/skp.png)
 
 详情请访问：[https://skp.360.cn/](https://skp.360.cn/)
 
