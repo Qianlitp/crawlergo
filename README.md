@@ -26,8 +26,9 @@ crawlergo 目前支持以下特性：
 **安装使用之前，请仔细阅读并确认[免责声明](./Disclaimer.md)。**
 
 1. crawlergo 只依赖或chrome运行即可，前往[下载](https://www.chromium.org/getting-involved/download-chromium)新版本的chromium，或者直接[点击下载Linux79版本](https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip)。
-
 2. 前往[页面下载](https://github.com/0Kee-Team/crawlergo/releases)最新版本的crawlergo解压到任意目录，如果是linux或者macOS系统，请赋予crawlergo**可执行权限(+x)**。
+
+> 如果你使用linux系统，运行时chrome提示缺少一些依赖组件，请看下方 Trouble Shooting
 
 ## Quick Start
 
@@ -128,6 +129,26 @@ crawlergo 返回了全量的请求和URL信息，可以有多种使用方法：
 * 'Fetch.enable' wasn't found
 
   Fetch是新版chrome支持的功能，如果出现此错误，说明你的版本较低，请升级chrome到最新版即可。
+  
+* chrome运行提示缺少 xxx.so 等依赖
+
+  ```shell
+  // Ubuntu
+  apt-get install -yq --no-install-recommends \
+       libasound2 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 \
+       libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 \
+       libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 \
+       libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 libnss3
+       
+  // CentOS 7
+  sudo yum install pango.x86_64 libXcomposite.x86_64 libXcursor.x86_64 libXdamage.x86_64 libXext.x86_64 libXi.x86_64 \
+       libXtst.x86_64 cups-libs.x86_64 libXScrnSaver.x86_64 libXrandr.x86_64 GConf2.x86_64 alsa-lib.x86_64 atk.x86_64 gtk3.x86_64 \
+       ipa-gothic-fonts xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc -y
+  
+  sudo yum update nss -y
+  ```
+
+  
 
 ## Follow me
 
