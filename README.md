@@ -11,7 +11,7 @@ crawlergo 目前支持以下特性：
 * 原生浏览器环境，协程池调度任务
 * 表单智能填充、自动化提交
 * 完整DOM事件收集，自动化触发
-* 智能URL去重，去掉大部分的重复页面
+* 智能URL去重，去掉大部分的重复请求
 * 全面分析收集，包括javascript文件内容、页面注释、robots.txt文件和常见路径Fuzz
 * 支持Host绑定，自动添加Referer。
 
@@ -25,7 +25,7 @@ crawlergo 目前支持以下特性：
 
 **安装使用之前，请仔细阅读并确认[免责声明](./Disclaimer.md)。**
 
-1. crawlergo 只依赖或chrome运行即可，前往[下载](https://www.chromium.org/getting-involved/download-chromium)新版本的chromium，或者直接[点击下载Linux79版本](https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip)。
+1. crawlergo 只依赖chrome运行即可，前往[下载](https://www.chromium.org/getting-involved/download-chromium)新版本的chromium，或者直接[点击下载Linux79版本](https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip)。
 2. 前往[页面下载](https://github.com/0Kee-Team/crawlergo/releases)最新版本的crawlergo解压到任意目录，如果是linux或者macOS系统，请赋予crawlergo**可执行权限(+x)**。
 
 > 如果你使用linux系统，运行时chrome提示缺少一些依赖组件，请看下方 Trouble Shooting
@@ -115,7 +115,7 @@ crawlergo 返回了全量的请求和URL信息，可以有多种使用方法：
 * 子域名收集  example
 * 旁站入口收集  example
 * 结合celery实现分布式扫描
-* Host绑定设置  example
+* Host绑定设置  [example](https://github.com/0Kee-Team/crawlergo/blob/master/examples/host_binding.py)
 * 带Cookie扫描  example
 
 ## // TODO
