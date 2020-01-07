@@ -13,7 +13,7 @@ crawlergo 目前支持以下特性：
 * 完整DOM事件收集，自动化触发
 * 智能URL去重，去掉大部分的重复请求
 * 全面分析收集，包括javascript文件内容、页面注释、robots.txt文件和常见路径Fuzz
-* 支持Host绑定，自动添加Referer。
+* 支持Host绑定，自动添加Referer
 
 目前开放编译好的程序给大家使用，该项目属于商业化产品的一部分，代码暂无法开源。
 
@@ -92,6 +92,9 @@ crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
 * `--robots-path` 从robots.txt 文件中解析路径，获取更多入口。
 * `--tab-run-timeout Timeout`   单个Tab标签页的最大运行超时。
 * `--wait-dom-content-loaded-timeout Timeout`  爬虫等待页面加载完毕的最大超时。
+* `--event-trigger-interval Interval` 事件自动触发时的间隔时间，一般用于目标网络缓慢，DOM更新冲突时导致的URL漏抓。
+* `--event-trigger-mode Value` 事件自动触发的模式，分为异步和同步，用于DOM更新冲突时导致的URL漏抓。
+* `--before-exit-delay` 单个tab标签页任务结束时，延迟退出关闭chrome的时间，用于等待部分DOM更新和XHR请求的发起捕获。
 
 ## Bypass headless detect
 
@@ -115,7 +118,7 @@ crawlergo 返回了全量的请求和URL信息，可以有多种使用方法：
 * 子域名收集  example
 * 旁站入口收集  example
 * 结合celery实现分布式扫描
-* Host绑定设置  [example](https://github.com/0Kee-Team/crawlergo/blob/master/examples/host_binding.py)
+* Host绑定设置（高版本chrome无法使用）  [example](https://github.com/0Kee-Team/crawlergo/blob/master/examples/host_binding.py)
 * 带Cookie扫描  example
 
 ## // TODO
