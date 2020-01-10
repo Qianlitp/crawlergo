@@ -95,6 +95,7 @@ crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
 * `--event-trigger-interval Interval` 事件自动触发时的间隔时间，一般用于目标网络缓慢，DOM更新冲突时导致的URL漏抓。
 * `--event-trigger-mode Value` 事件自动触发的模式，分为异步和同步，用于DOM更新冲突时导致的URL漏抓。
 * `--before-exit-delay` 单个tab标签页任务结束时，延迟退出关闭chrome的时间，用于等待部分DOM更新和XHR请求的发起捕获。
+* `--ignore-url-keywords` 不想访问的URL关键字，一般用于在携带Cookie访问时排除注销链接。
 
 ## Bypass headless detect
 
