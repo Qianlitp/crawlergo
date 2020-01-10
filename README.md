@@ -119,8 +119,8 @@ crawlergo 返回了全量的请求和URL信息，可以有多种使用方法：
 * 子域名收集  example
 * 旁站入口收集  example
 * 结合celery实现分布式扫描
-* Host绑定设置（高版本chrome无法使用）  [example](https://github.com/0Kee-Team/crawlergo/blob/master/examples/host_binding.py)
-* 带Cookie扫描  example
+* Host绑定设置（高版本chrome无法使用）  [(查看例子)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/host_binding.py)
+* 带Cookie扫描  [(查看例子)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/request_with_cookie.py)
 
 ## // TODO
 
