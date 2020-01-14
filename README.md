@@ -85,7 +85,7 @@ crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
 * `--post-data PostData, -d PostData`   提供POST数据，目标使用POST请求方法
 * `--max-crawled-count Number, -m Number`   爬虫最大任务数量，避免因伪静态造成长时间无意义抓取。
 * `--filter-mode Mode, -f Mode`   过滤模式，简单：只过滤静态资源和完全重复的请求。智能：拥有过滤伪静态的能力。严格：更加严格的伪静态过滤规则。
-* `--output-mode value, -o value`   结果输出模式，console：打印当前域名结果。json：打印所有结果的json序列化字符串，可直接被反序列化解析。
+* `--output-mode value, -o value`   结果输出模式，`console`：打印当前域名结果。`json`：打印所有结果的json序列化字符串，可直接被反序列化解析。`none`：不打印输出。
 * `--incognito-context, -i`   浏览器启动隐身模式
 * `--max-tab-count Number, -t Number`   爬虫同时开启最大标签页，即同时爬取的页面数量。
 * `--fuzz-path`  使用常见路径Fuzz目标，获取更多入口。
@@ -96,6 +96,9 @@ crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
 * `--event-trigger-mode Value` 事件自动触发的模式，分为异步和同步，用于DOM更新冲突时导致的URL漏抓。
 * `--before-exit-delay` 单个tab标签页任务结束时，延迟退出关闭chrome的时间，用于等待部分DOM更新和XHR请求的发起捕获。
 * `--ignore-url-keywords` 不想访问的URL关键字，一般用于在携带Cookie访问时排除注销链接。
+* `--push-to-proxy` 拟接收爬虫结果的监听地址，一般为被动扫描器的监听地址。
+* `--push-pool-max` 发送爬虫结果到监听地址时的最大并发数。
+* `--log-level` 打印日志等级，可选 debug, info, warn, error 和 fatal。
 
 ## Bypass headless detect
 
@@ -115,11 +118,22 @@ crawlergo是[**360天相**](https://skp.360.cn/)的子模块，天相是360自�
 
 crawlergo 返回了全量的请求和URL信息，可以有多种使用方法：
 
-* 联动其它的开源被动扫描器  example
+* 联动其它的开源被动扫描器
+
+  首先，启动某被动扫描器，设置监听地址为：`http://127.0.0.1:1234/`。
+
+  接下来，假设crawlergo与扫描器在同一台机器，启动 crawlergo，设置参数：
+
+  `--push-to-proxy http://127.0.0.1:1234/`
+
 * 子域名收集  example
+
 * 旁站入口收集  example
+
 * 结合celery实现分布式扫描
+
 * Host绑定设置（高版本chrome无法使用）  [(查看例子)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/host_binding.py)
+
 * 带Cookie扫描  [(查看例子)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/request_with_cookie.py)
 
 ## // TODO
