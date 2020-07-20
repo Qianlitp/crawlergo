@@ -111,7 +111,7 @@ crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
 * `--event-trigger-mode Value` 事件自动触发的模式，分为异步和同步，用于DOM更新冲突时导致的URL漏抓。
 * `--before-exit-delay` 单个tab标签页任务结束时，延迟退出关闭chrome的时间，用于等待部分DOM更新和XHR请求的发起捕获。
 * `--ignore-url-keywords` 不想访问的URL关键字，一般用于在携带Cookie访问时排除注销链接。
-* `--form-values` 自定义表单填充的值，按照文本类型设置。支持定义类型：default, mail, code, phone, username, password, qq, id_card, url, date, number，文本类型通过输入框标签的`id`、`name`、`class`、`type`四个属性值关键字进行识别。如，定义邮箱输入框自动填充A，密码输入框自动填充B，`--form-values "mail=A","password=B"`。
+* `--form-values` 自定义表单填充的值，按照文本类型设置。支持定义类型：default, mail, code, phone, username, password, qq, id_card, url, date, number，文本类型通过输入框标签的`id`、`name`、`class`、`type`四个属性值关键字进行识别。如，定义邮箱输入框自动填充A，密码输入框自动填充B，`--form-values "mail=A","password=B"`。其中default代表无法识别文本类型时的默认填充值，目前为Cralwergo。
 * `--form-keyword-values` 自定义表单填充的值，按照关键字模糊匹配设置。关键字匹配输入框标签的`id`、`name`、`class`、`type`四个属性值。如，模糊匹配pass关键词填充123456，user关键词填充admin，`--form-keyword-values "user=admin","pass=123456"`。
 * `--push-to-proxy` 拟接收爬虫结果的监听地址，一般为被动扫描器的监听地址。
 * `--push-pool-max` 发送爬虫结果到监听地址时的最大并发数。
