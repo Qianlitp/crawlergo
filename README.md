@@ -1,10 +1,10 @@
 # crawlergo
 
-![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg) ![Chromium version](https://img.shields.io/badge/chromium-79.0.3945.0-important.svg) ![SKP](https://img.shields.io/badge/Project-360天相-blue.svg)
+![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg) ![Chromium version](https://img.shields.io/badge/chromium-79.0.3945.0-important.svg) 
 
-> A powerful dynamic crawler for web vulnerability scanners
+> A powerful browser crawler for web vulnerability scanners
 
-crawlergo是一个使用`chrome headless`模式进行URL入口收集的**动态爬虫**。 使用Golang语言开发，基于[chromedp](https://github.com/chromedp/chromedp) 进行一些定制化开发后操纵CDP协议，对整个页面关键点进行HOOK，灵活表单填充提交，完整的事件触发，尽可能的收集网站暴露出的入口。同时，依靠智能URL去重模块，在过滤掉了大多数伪静态URL之后，仍然确保不遗漏关键入口链接，大幅减少重复任务。
+crawlergo是一个使用`chrome headless`模式进行URL入口收集的**浏览器爬虫**。 使用Golang语言开发，基于[chromedp](https://github.com/chromedp/chromedp) 进行一些定制化开发后操纵CDP协议，对整个页面关键点进行HOOK，灵活表单填充提交，完整的事件触发，尽可能的收集网站暴露出的入口。同时，依靠智能URL去重模块，在过滤掉了大多数伪静态URL之后，仍然确保不遗漏关键入口链接，大幅减少重复任务。
 
 crawlergo 目前支持以下特性：
 
@@ -179,15 +179,6 @@ crawlergo 返回了全量的请求和URL信息，可以有多种使用方法：
 https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html
 
 ![](./imgs/bypass.png)
-
-## 关于360天相
-
-crawlergo是[**360天相**](https://skp.360.cn/)的子模块，天相是360自研的**资产管理与威胁探测系统**，主打强大的资产识别能力和全方位分析体系，拥有高效率的扫描能力，核心技术由 [360 0KeeTeam](https://0kee.360.cn/) 和 [360 RedTeam](http://redteam.360.cn/) 提供支持。
-
-![](./imgs/skp.png)
-
-详情请访问：[https://skp.360.cn/](https://skp.360.cn/)
-
 
 
 ## Follow me
