@@ -103,6 +103,7 @@ crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
 * `--incognito-context, -i`   浏览器启动隐身模式
 * `--max-tab-count Number, -t Number`   爬虫同时开启最大标签页，即同时爬取的页面数量。
 * `--fuzz-path`  使用常见路径Fuzz目标，获取更多入口。
+* `--fuzz-path-dict`  通过字典文件自定义Fuzz目录，传入字典文件路径，如：`/home/user/fuzz_dir.txt`，文件每行代表一个要fuzz的目录。
 * `--robots-path` 从 /robots.txt 文件中解析路径，获取更多入口。
 * `--request-proxy proxyAddress` 支持**socks5**代理，crawlergo和chrome浏览器的所有网络请求均经过代理发送。
 * `--tab-run-timeout Timeout`   单个Tab标签页的最大运行超时。
@@ -116,6 +117,7 @@ crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
 * `--push-to-proxy` 拟接收爬虫结果的监听地址，一般为被动扫描器的监听地址。
 * `--push-pool-max` 发送爬虫结果到监听地址时的最大并发数。
 * `--log-level` 打印日志等级，可选 debug, info, warn, error 和 fatal。
+* `--no-headless`  关闭chrome headless模式，可直观的看到爬虫过程。
 
 
 
