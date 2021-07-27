@@ -4,54 +4,53 @@
 
 > A powerful browser crawler for web vulnerability scanners
 
-crawlergo是一个使用`chrome headless`模式进行URL收集的浏览器爬虫。它对整个网页的关键位置与DOM渲染阶段进行HOOK，自动进行表单填充并提交，配合智能的JS事件触发，尽可能的收集网站暴露出的入口。内置URL去重模块，过滤掉了大量伪静态URL，对于大型网站仍保持较快的解析与抓取速度，最后得到高质量的请求结果集合。
+English Document | [中文文档](./README_zh-cn.md)
 
-crawlergo 目前支持以下特性：
+crawlergo is a browser crawler that uses `chrome headless` mode for URL collection. It hooks key positions of the whole web page with DOM rendering stage, automatically fills and submits forms, with intelligent JS event triggering, and collects as many entries exposed by the website as possible. The built-in URL de-duplication module filters out a large number of pseudo-static URLs, still maintains a fast parsing and crawling speed for large websites, and finally gets a high-quality collection of request results.
 
-* 原生浏览器环境，协程池调度任务
-* 表单智能填充、自动化提交
-* 完整DOM事件收集，自动化触发
-* 智能URL去重，去掉大部分的重复请求
-* 全面分析收集，包括javascript文件内容、页面注释、robots.txt文件和常见路径Fuzz
-* 支持Host绑定，自动添加Referer
-* 支持请求代理，支持爬虫结果主动推送
+crawlergo currently supports the following features:
+* chrome browser environment rendering
+* Intelligent form filling, automated submission
+* Full DOM event collection with automated triggering
+* Smart URL de-duplication to remove most duplicate requests
+* Intelligent analysis of web pages and collection of URLs, including javascript file content, page comments, robots.txt files and automatic Fuzz of common paths
+* Support Host binding, automatically fix and add Referer
+* Support browser request proxy
+* Support pushing the results to passive web vulnerability scanners
 
-## 运行截图
+## Screenshot
 
 ![](./imgs/demo.gif)
 
-## 安装
+## Installation
 
-**安装使用之前，请仔细阅读并确认[免责声明](./Disclaimer.md)。**
+**Please read and confirm [disclaimer](./Disclaimer.md) carefully before installing and using。**
 
-1. crawlergo 只依赖chrome运行即可，前往[下载](https://www.chromium.org/getting-involved/download-chromium)新版本的chromium，或者直接[点击下载Linux79版本](https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip)。
-2. 前往[页面下载](https://github.com/0Kee-Team/crawlergo/releases)最新版本的crawlergo解压到任意目录，如果是linux或者macOS系统，请赋予crawlergo**可执行权限(+x)**。
+1. crawlergo relies only on the chrome environment to run, go to [download](https://www.chromium.org/getting-involved/download-chromium) for the new version of chromium, or just [click to download Linux version 79](https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip).
+2. Go to [download page](https://github.com/0Kee-Team/crawlergo/releases) for the latest version of crawlergo and extract it to any directory. If you are on linux or macOS, please give crawlergo **executable permissions (+x)**.
 
-> 如果你使用linux系统，运行时chrome提示缺少一些依赖组件，请看下方 Trouble Shooting
+> If you are using a linux system and chrome prompts you with missing dependencies, please see TroubleShooting below
 
 ## Quick Start
-
 ### Go！
 
-假设你的chromium安装在 `/tmp/chromium/` ，开启最大10标签页，爬取AWVS靶场：
+Assuming your chromium installation directory is `/tmp/chromium/`, set up 10 tabs open at the same time and crawl the `testphp.vulnweb.com`:
 
 ```shell
 ./crawlergo -c /tmp/chromium/chrome -t 10 http://testphp.vulnweb.com/
 ```
 
 
-
-### 使用代理
+### Using Proxy
 
 ```shell
 ./crawlergo -c /tmp/chromium/chrome -t 10 --request-proxy socks5://127.0.0.1:7891 http://testphp.vulnweb.com/
 ```
 
 
+### Calling crawlergo with python
 
-### 系统调用
-
-默认打印当前域名请求，但多数情况我们希望调用crawlergo返回的结果，所以设置输出模式为 `json`，使用python调用并收集结果的示例如下：
+By default, crawlergo prints the results directly on the screen. We next set the output mode to `json`, and the sample code for calling it using python is as follows:
 
 ```python
 #!/usr/bin/python3
@@ -66,7 +65,7 @@ def main():
     cmd = ["./crawlergo", "-c", "/tmp/chromium/chrome", "-o", "json", target]
     rsp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = rsp.communicate()
-	#  "--[Mission Complete]--"  是任务结束的分隔字符串
+	#  "--[Mission Complete]--"  is the end-of-task separator string
     result = simplejson.loads(output.decode().split("--[Mission Complete]--")[1])
     req_list = result["req_list"]
     print(req_list[0])
@@ -76,80 +75,72 @@ if __name__ == '__main__':
     main()
 ```
 
-### 返回结果
+### Crawl Results
 
-当设置输出模式为 `json`时，返回的结果反序列化之后包含四个部分：
+When the output mode is set to `json`, the returned result, after JSON deserialization, contains four parts:
 
-* `all_req_list`： 本次爬取任务过程中发现的所有请求，包含其他域名的任何资源类型。
-* `req_list`：本次爬取任务的**同域名结果**，经过伪静态去重，不包含静态资源链接。理论上是 `all_req_list `的子集
-* `all_domain_list`：发现的所有域名列表。
-* `sub_domain_list`：发现的任务目标的子域名列表。
-
-
-
-## 完整参数说明
-
-crawlergo 拥有灵活的参数配置，以下是详细的选项说明：
-
-* `--chromium-path Path, -c Path`    chrome的可执行程序路径
-* `--custom-headers Headers`   自定义HTTP头，使用传入json序列化之后的数据，这个是全局定义，将被用于所有请求
-* `--post-data PostData, -d PostData`   提供POST数据，目标使用POST请求方法
-* `--max-crawled-count Number, -m Number`   爬虫最大任务数量，避免因伪静态造成长时间无意义抓取。
-* `--filter-mode Mode, -f Mode`   过滤模式，简单：只过滤静态资源和完全重复的请求。智能：拥有过滤伪静态的能力。严格：更加严格的伪静态过滤规则。
-* `--output-mode value, -o value`   结果输出模式，`console`：打印当前域名结果。`json`：打印所有结果的json序列化字符串，可直接被反序列化解析。`none`：不打印输出。
-* `--output-json filepath` 将爬虫结果JSON序列化之后写入到json文件。
-* `--incognito-context, -i`   浏览器启动隐身模式
-* `--max-tab-count Number, -t Number`   爬虫同时开启最大标签页，即同时爬取的页面数量。
-* `--fuzz-path`  使用常见路径Fuzz目标，获取更多入口。
-* `--fuzz-path-dict`  通过字典文件自定义Fuzz目录，传入字典文件路径，如：`/home/user/fuzz_dir.txt`，文件每行代表一个要fuzz的目录。
-* `--robots-path` 从 /robots.txt 文件中解析路径，获取更多入口。
-* `--request-proxy proxyAddress` 支持**socks5**代理，crawlergo和chrome浏览器的所有网络请求均经过代理发送。
-* `--tab-run-timeout Timeout`   单个Tab标签页的最大运行超时。
-* `--wait-dom-content-loaded-timeout Timeout`  爬虫等待页面加载完毕的最大超时。
-* `--event-trigger-interval Interval` 事件自动触发时的间隔时间，一般用于目标网络缓慢，DOM更新冲突时导致的URL漏抓。
-* `--event-trigger-mode Value` 事件自动触发的模式，分为异步和同步，用于DOM更新冲突时导致的URL漏抓。
-* `--before-exit-delay` 单个tab标签页任务结束时，延迟退出关闭chrome的时间，用于等待部分DOM更新和XHR请求的发起捕获。
-* `--ignore-url-keywords` 不想访问的URL关键字，一般用于在携带Cookie访问时排除注销链接。用法：`-iuk logout -iuk exit`。
-* `--form-values` 自定义表单填充的值，按照文本类型设置。支持定义类型：default, mail, code, phone, username, password, qq, id_card, url, date, number，文本类型通过输入框标签的`id`、`name`、`class`、`type`四个属性值关键字进行识别。如，定义邮箱输入框自动填充A，密码输入框自动填充B，`-fv mail=A -fv password=B`。其中default代表无法识别文本类型时的默认填充值，目前为Cralwergo。
-* `--form-keyword-values` 自定义表单填充的值，按照关键字模糊匹配设置。关键字匹配输入框标签的`id`、`name`、`class`、`type`四个属性值。如，模糊匹配pass关键词填充123456，user关键词填充admin，`-fkv user=admin -fkv pass=123456`。
-* `--push-to-proxy` 拟接收爬虫结果的监听地址，一般为被动扫描器的监听地址。
-* `--push-pool-max` 发送爬虫结果到监听地址时的最大并发数。
-* `--log-level` 打印日志等级，可选 debug, info, warn, error 和 fatal。
-* `--no-headless`  关闭chrome headless模式，可直观的看到爬虫过程。
+* `all_req_list`： All requests found during this crawl task, containing any resource type from other domains.
+* `req_list`：Returns the **current domain results** of this crawl task, pseudo-statically de-duplicated, without static resource links. It is a subset of `all_req_list `.
+* `all_domain_list`：List of all domains found.
+* `sub_domain_list`：List of subdomains found.
 
 
 
-## 使用举例
+## Parameter Description
 
-crawlergo 返回了全量的请求和URL信息，可以有多种使用方法：
+* **`--chromium-path Path, -c Path`**    The path to the chrome executable. (**Required**)
+* **`--custom-headers Headers`**   Customize the HTTP header. Please pass in the data after JSON serialization, this is globally defined and will be used for all requests. (**Default: null**)
+* **`--post-data PostData, -d PostData`**   POST data. (**Default: null**)
+* **`--max-crawled-count Number, -m Number`**    The maximum number of tasks for crawlers to avoid long crawling time due to pseudo-static. (**Default: 200**)
+* **`--filter-mode Mode, -f Mode`**   Filtering mode, `simple`: only static resources and duplicate requests are filtered.  `smart`: with the ability to filter pseudo-static. `strict`: stricter pseudo-static filtering rules. (**Default: smart**)
+* **`--output-mode value, -o value`**   Result output mode, `console`: print the glorified results directly to the screen. `json`: print the json serialized string of all results.  `none`: don't print the output. (**Default: console**)
+* **`--output-json filepath`** Write the result to the specified file after JSON serializing it. (**Default: null**)
+* **`--incognito-context, -i`**   Browser start incognito mode. (**Default: true**)
+* **`--max-tab-count Number, -t Number`**   The maximum number of tabs the crawler can open at the same time. (**Default: 8**)
+* **`--fuzz-path`**  Use the built-in dictionary for path fuzzing. (**Default: false**)
+* **`--fuzz-path-dict`**  Customize the Fuzz path by passing in a dictionary file path, e.g. /home/user/fuzz_dir.txt, each line of the file represents a path to be fuzzed. (**Default: null**)
+* **`--robots-path`** Resolve the path from the /robots.txt file. (**Default: false**)
+* **`--request-proxy proxyAddress`** **socks5** proxy address, all network requests from crawlergo and chrome browser are sent through the proxy. (**Default: null**)
+* **`--tab-run-timeout Timeout`**   Maximum runtime for a single tab page. (**Default: 20s**)
+* **`--wait-dom-content-loaded-timeout Timeout`**  The maximum timeout to wait for the page to finish loading. (**Default: 5s**)
+* **`--event-trigger-interval Interval`** The interval when the event is triggered automatically, generally used in the case of slow target network and DOM update conflicts that lead to URL miss capture. (**Default: 100ms**)
+* **`--event-trigger-mode Value`** DOM event auto-triggered mode, with `async` and `sync`, for URL miss-catching caused by DOM update conflicts. (**Default: async**)
+* **`--before-exit-delay`** Delay exit to close chrome at the end of a single tab task. Used to wait for partial DOM updates and XHR requests to be captured. (**Default: 1s**)
+* **`--ignore-url-keywords, -iuk`** URL keyword that you don't want to visit, generally used to exclude logout links when customizing cookies. Usage: `-iuk logout -iuk exit`. (**default: "logout", "quit", "exit"**)
+* **`--form-values, -fv`** Customize the value of the form fill, set by text type. Support definition types: default, mail, code, phone, username, password, qq, id_card, url, date and number. Text types are identified by the four attribute value keywords `id`, `name`, `class`, `type` of the input box label. For example, define the mailbox input box to be automatically filled with A and the password input box to be automatically filled with B, `-fv mail=A -fv password=B`.Where default represents the fill value when the text type is not recognized, as "Cralwergo". (**Default: Cralwergo**)
+* **`--form-keyword-values, -fkv`** Customize the value of the form fill, set by keyword fuzzy match. The keyword matches the four attribute values of `id`, `name`, `class`, `type` of the input box label. For example, fuzzy match the pass keyword to fill 123456 and the user keyword to fill admin, `-fkv user=admin -fkv pass=123456`. (**Default: Cralwergo**)
+* **`--push-to-proxy`** The listener address of the crawler result to be received, usually the listener address of the passive scanner. (**Default: null**)
+* **`--push-pool-max`** The maximum number of concurrency when sending crawler results to the listening address. (**Default: 10**)
+* **`--log-level`** Logging levels, debug, info, warn, error and fatal. (**Default: info**)
+* **`--no-headless`**  Turn off chrome headless mode to visualize the crawling process. (**Default: false**)
 
-* 联动其它的开源被动扫描器
 
-  首先，启动某被动扫描器，设置监听地址为：`http://127.0.0.1:1234/`。
 
-  接下来，假设crawlergo与扫描器在同一台机器，启动 crawlergo，设置参数：
+## Examples
+
+crawlergo returns the full request and URL, which can be used in a variety of ways:
+
+* Used in conjunction with other passive web vulnerability scanners
+
+  First, start a passive scanner and set the listening address to: `http://127.0.0.1:1234/`
+
+  Next, assuming crawlergo is on the same machine as the scanner, start crawlergo and set the parameters:
 
   `--push-to-proxy http://127.0.0.1:1234/`
 
-* 子域名收集  example
+* Host binding (not available for high version chrome)  [(example)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/host_binding.py)
 
-* 旁站入口收集  example
+* Custom Cookies  [(example)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/request_with_cookie.py)
 
-* 结合celery实现分布式扫描
+* Regularly clean up zombie processes generated by crawlergo [(example)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/zombie_clean.py) , contributed by @ring04h
 
-* Host绑定设置（高版本chrome无法使用）  [(查看例子)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/host_binding.py)
-
-* 带Cookie扫描  [(查看例子)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/request_with_cookie.py)
-
-* 调用crawlergo调用产生僵尸进程，定时清理 [(查看例子)](https://github.com/0Kee-Team/crawlergo/blob/master/examples/zombie_clean.py) , contributed by @ring04h
-
-## Trouble Shooting
+## TroubleShooting
 
 * 'Fetch.enable' wasn't found
 
-  Fetch是新版chrome支持的功能，如果出现此错误，说明你的版本较低，请升级chrome到最新版即可。
+  Fetch is a feature supported by the new version of chrome, if this error occurs, it means your version is too low, please upgrade the chrome version.
   
-* chrome运行提示缺少 xxx.so 等依赖
+* chrome runs with missing dependencies such as xxx.so
 
   ```shell
   // Ubuntu
@@ -168,13 +159,14 @@ crawlergo 返回了全量的请求和URL信息，可以有多种使用方法：
   ```
 
 
-* 运行提示**导航超时** / 浏览器无法找到 / 不知道正确的**浏览器可执行文件路径**
+* Run prompt **Navigation timeout** / browser not found / don't know correct **browser executable path**
 
-  确认配置的浏览器可执行路径正确，在地址栏中输入：`chrome://version`，找到可执行程序文件路径：
+   Make sure the browser executable path is configured correctly, type: `chrome://version` in the address bar, and find the executable file path:
 
   ![](./imgs/chrome_path.png)
 
 ## Bypass headless detect
+crawlergo can bypass headless mode detection by default.
 
 https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-test.html
 
@@ -183,9 +175,7 @@ https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-te
 
 ## Follow me
 
-如果你有关于浏览器爬虫的想法，欢迎和我交流。
+Weibo：[@9ian1i](https://weibo.com/u/5242748339) 
+Twitter: [@9ian1i](https://twitter.com/9ian1i)
 
-微博：[@9ian1i](https://weibo.com/u/5242748339) 
-Github: [@9ian1i](https://github.com/Qianlitp) 
-
-相关文章：[漏扫动态爬虫实践](https://www.anquanke.com/post/id/178339)
+Related articles：[A browser crawler practice for web vulnerability scanning](https://www.anquanke.com/post/id/178339)
