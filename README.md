@@ -4,7 +4,7 @@
 
 > A powerful browser crawler for web vulnerability scanners
 
-crawlergo是一个使用`chrome headless`模式进行URL入口收集的**浏览器爬虫**。 使用Golang语言开发，基于[chromedp](https://github.com/chromedp/chromedp) 进行一些定制化开发后操纵CDP协议，对整个页面关键点进行HOOK，灵活表单填充提交，完整的事件触发，尽可能的收集网站暴露出的入口。同时，依靠智能URL去重模块，在过滤掉了大多数伪静态URL之后，仍然确保不遗漏关键入口链接，大幅减少重复任务。
+crawlergo是一个使用`chrome headless`模式进行URL收集的浏览器爬虫。它对整个网页的关键位置与DOM渲染阶段进行HOOK，自动进行表单填充并提交，配合智能的JS事件触发，尽可能的收集网站暴露出的入口。内置URL去重模块，过滤掉了大量伪静态URL，对于大型网站仍保持较快的解析与抓取速度，最后得到高质量的请求结果集合。
 
 crawlergo 目前支持以下特性：
 
@@ -183,8 +183,9 @@ https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-te
 
 ## Follow me
 
-如果你有关于动态爬虫的想法，欢迎和我交流。
+如果你有关于浏览器爬虫的想法，欢迎和我交流。
 
-微博：[@9ian1i](https://weibo.com/u/5242748339) Github: [@9ian1i](https://github.com/Qianlitp) 
+微博：[@9ian1i](https://weibo.com/u/5242748339) 
+Github: [@9ian1i](https://github.com/Qianlitp) 
 
 相关文章：[漏扫动态爬虫实践](https://www.anquanke.com/post/id/178339)
