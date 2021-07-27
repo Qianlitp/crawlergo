@@ -86,7 +86,7 @@ When the output mode is set to `json`, the returned result, after JSON deseriali
 
 
 
-## Parameter Description
+## Parameters
 
 * **`--chromium-path Path, -c Path`**    The path to the chrome executable. (**Required**)
 * **`--custom-headers Headers`**   Customize the HTTP header. Please pass in the data after JSON serialization, this is globally defined and will be used for all requests. (**Default: null**)
