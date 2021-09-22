@@ -74,10 +74,9 @@ func main() {
 
 	app := &cli.App{
 		Name:        "crawlergo",
-		Usage:       "A powerful dynamic crawler for web vulnerability scanners",
+		Usage:       "A powerful browser crawler for web vulnerability scanners",
 		UsageText:   "crawlergo [global options] url1 url2 url3 ... (must be same host)",
-		Description: "crawlergo is part of the 360 Skyphenomena. you can visit [https://skp.360.cn/] to learn more.",
-		Version:     "v0.4.1",
+		Version:     "v0.4.2",
 		Authors:     []*cli.Author{&author},
 		Flags: []cli.Flag{
 			&cli.PathFlag{
