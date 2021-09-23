@@ -1,12 +1,15 @@
 package model
 
 import (
-	"crawlergo/pkg/tools/requests"
 	"errors"
 	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"golang.org/x/net/publicsuffix"
+
+	"crawlergo/pkg/tools/requests"
 )
 
 type URL struct {
@@ -122,17 +125,20 @@ func (u *URL) NavigationUrl() string {
 */
 func (u *URL) RootDomain() string {
 	domain := u.Hostname()
-	if strings.Count(domain, ".") == 1 {
-		return domain
-	}
-
-	parts := strings.Split(domain, ".")
-	if len(parts) >= 2 {
-		parts = parts[len(parts)-2:]
-		return strings.Join(parts, ".")
-	} else {
+	suffix, icann := publicsuffix.PublicSuffix(strings.ToLower(domain))
+	// 如果不是 icann 的域名，返回空字符串
+	if !icann {
 		return ""
 	}
+	i := len(domain) - len(suffix) - 1
+	// 如果域名错误
+	if i <= 0 {
+		return ""
+	}
+	if domain[i] != '.' {
+		return ""
+	}
+	return domain[1+strings.LastIndex(domain[:i], "."):]
 }
 
 /**
