@@ -14,4 +14,5 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/urfave/cli/v2 v2.0.0
+	golang.org/x/net v0.0.0-20210520170846-37e1c6afe023
 )
