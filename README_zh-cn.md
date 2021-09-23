@@ -1,6 +1,6 @@
 # crawlergo
 
-![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg) ![Chromium version](https://img.shields.io/badge/chromium-79.0.3945.0-important.svg) 
+![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg)  [![BlackHat EU Arsenal](/Users/9ian1i/github/crawlergo/README_zh-cn.assets/BlackHat Europe-2021 Arsenal-blue.svg)](https://www.blackhat.com/eu-21/arsenal/schedule/index.html#crawlergo-a-powerful-browser-crawler-for-web-vulnerability-scanners-25113)
 
 > A powerful browser crawler for web vulnerability scanners
 
@@ -26,8 +26,16 @@ crawlergo 目前支持以下特性：
 
 **安装使用之前，请仔细阅读并确认[免责声明](./Disclaimer.md)。**
 
+**Build**
+
+```shell
+cd crawlergo/cmd/crawlergo
+go build crawlergo_cmd.go
+```
+
 1. crawlergo 只依赖chrome运行即可，前往[下载](https://www.chromium.org/getting-involved/download-chromium)新版本的chromium，或者直接[点击下载Linux79版本](https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip)。
 2. 前往[页面下载](https://github.com/0Kee-Team/crawlergo/releases)最新版本的crawlergo解压到任意目录，如果是linux或者macOS系统，请赋予crawlergo**可执行权限(+x)**。
+3. 或者直接根据源码自行编译。
 
 > 如果你使用linux系统，运行时chrome提示缺少一些依赖组件，请看下方 Trouble Shooting
 

@@ -1,6 +1,6 @@
 # crawlergo
 
-![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg) ![Chromium version](https://img.shields.io/badge/chromium-79.0.3945.0-important.svg) 
+![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg) [![BlackHat EU Arsenal](https://img.shields.io/badge/BlackHat Europe-2021 Arsenal-blue.svg)](https://www.blackhat.com/eu-21/arsenal/schedule/index.html#crawlergo-a-powerful-browser-crawler-for-web-vulnerability-scanners-25113)
 
 > A powerful browser crawler for web vulnerability scanners
 
@@ -26,8 +26,16 @@ crawlergo currently supports the following features:
 
 **Please read and confirm [disclaimer](./Disclaimer.md) carefully before installing and using。**
 
+**Build**
+
+```shell
+cd crawlergo/cmd/crawlergo
+go build crawlergo_cmd.go
+```
+
 1. crawlergo relies only on the chrome environment to run, go to [download](https://www.chromium.org/getting-involved/download-chromium) for the new version of chromium, or just [click to download Linux version 79](https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip).
 2. Go to [download page](https://github.com/0Kee-Team/crawlergo/releases) for the latest version of crawlergo and extract it to any directory. If you are on linux or macOS, please give crawlergo **executable permissions (+x)**.
+3. Or you can modify the code and build it yourself.
 
 > If you are using a linux system and chrome prompts you with missing dependencies, please see TroubleShooting below
 
