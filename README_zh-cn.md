@@ -1,6 +1,6 @@
 # crawlergo
 
-![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg)  [![BlackHat EU Arsenal](/Users/9ian1i/github/crawlergo/README_zh-cn.assets/BlackHat Europe-2021 Arsenal-blue.svg)](https://www.blackhat.com/eu-21/arsenal/schedule/index.html#crawlergo-a-powerful-browser-crawler-for-web-vulnerability-scanners-25113)
+![chromedp](https://img.shields.io/badge/chromedp-v0.5.2-brightgreen.svg)  [![BlackHat EU Arsenal](https://img.shields.io/badge/BlackHat%20Europe-2021%20Arsenal-blue.svg)](https://www.blackhat.com/eu-21/arsenal/schedule/index.html#crawlergo-a-powerful-browser-crawler-for-web-vulnerability-scanners-25113)
 
 > A powerful browser crawler for web vulnerability scanners
 
