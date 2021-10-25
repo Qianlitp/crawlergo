@@ -1,14 +1,12 @@
 package engine
 
 import (
-	"context"
 	"crawlergo/pkg/config"
 	"crawlergo/pkg/logger"
 	"fmt"
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 	"regexp"
-	"time"
 )
 
 /**
@@ -22,14 +20,11 @@ func (tab *Tab) collectLinks() {
 
 func (tab *Tab) collectHrefLinks() {
 	defer tab.collectLinkWG.Done()
-	ctx := tab.GetExecutor()
 	// 收集 src href data-url 属性值
 	attrNameList := []string{"src", "href", "data-url", "data-href"}
 	for _, attrName := range attrNameList {
-		tCtx, cancel := context.WithTimeout(ctx, time.Second*1)
 		var attrs []map[string]string
-		_ = chromedp.AttributesAll(fmt.Sprintf(`[%s]`, attrName), &attrs, chromedp.ByQueryAll).Do(tCtx)
-		cancel()
+		_ = chromedp.Run(*tab.Ctx, chromedp.AttributesAll(fmt.Sprintf(`[%s]`, attrName), &attrs, chromedp.ByQueryAll, chromedp.AtLeast(0)))
 		for _, attrMap := range attrs {
 			tab.AddResultUrl(config.GET, attrMap[attrName], config.FromDOM)
 		}
@@ -38,12 +33,12 @@ func (tab *Tab) collectHrefLinks() {
 
 func (tab *Tab) collectObjectLinks() {
 	defer tab.collectLinkWG.Done()
-	ctx := tab.GetExecutor()
 	// 收集 object[data] links
-	tCtx, cancel := context.WithTimeout(ctx, time.Second*1)
-	defer cancel()
 	var attrs []map[string]string
-	_ = chromedp.AttributesAll(`object[data]`, &attrs, chromedp.ByQueryAll).Do(tCtx)
+	if err := chromedp.Run(*tab.Ctx, chromedp.AttributesAll(`object[data]`, &attrs, chromedp.ByQueryAll, chromedp.AtLeast(0))); err != nil {
+		logger.Logger.Debug(err)
+		return
+	}
 	for _, attrMap := range attrs {
 		tab.AddResultUrl(config.GET, attrMap["data"], config.FromDOM)
 	}
@@ -51,15 +46,11 @@ func (tab *Tab) collectObjectLinks() {
 
 func (tab *Tab) collectCommentLinks() {
 	defer tab.collectLinkWG.Done()
-	ctx := tab.GetExecutor()
 	// 收集注释中的链接
 	var nodes []*cdp.Node
-	tCtxComment, cancel := context.WithTimeout(ctx, time.Second*1)
-	defer cancel()
-	commentErr := chromedp.Nodes(`//comment()`, &nodes, chromedp.BySearch).Do(tCtxComment)
-	if commentErr != nil {
+	if err := chromedp.Run(*tab.Ctx, chromedp.Nodes(`//comment()`, &nodes, chromedp.BySearch)); err != nil {
 		logger.Logger.Debug("get comment nodes err")
-		logger.Logger.Debug(commentErr)
+		logger.Logger.Debug(err)
 		return
 	}
 	urlRegex := regexp.MustCompile(config.URLRegex)
