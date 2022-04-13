@@ -33,7 +33,7 @@ cd crawlergo/cmd/crawlergo
 go build crawlergo_cmd.go
 ```
 
-1. crawlergo relies only on the chrome environment to run, go to [download](https://www.chromium.org/getting-involved/download-chromium) for the new version of chromium, or just [click to download Linux version 79](https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/706915/chrome-linux.zip).
+1. crawlergo relies only on the chrome environment to run, go to [download](https://www.chromium.org/getting-involved/download-chromium) for the new version of chromium.
 2. Go to [download page](https://github.com/0Kee-Team/crawlergo/releases) for the latest version of crawlergo and extract it to any directory. If you are on linux or macOS, please give crawlergo **executable permissions (+x)**.
 3. Or you can modify the code and build it yourself.
 
