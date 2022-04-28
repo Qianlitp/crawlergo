@@ -257,7 +257,6 @@ func main() {
 }
 
 func run(c *cli.Context) error {
-	var req model2.Request
 	signalChan = make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 
@@ -275,6 +274,7 @@ func run(c *cli.Context) error {
 
 	var targets []*model2.Request
 	for _, _url := range c.Args().Slice() {
+		var req model2.Request
 		url, err := model2.GetUrl(_url)
 		if err != nil {
 			logger.Logger.Error("parse url failed, ", err)
