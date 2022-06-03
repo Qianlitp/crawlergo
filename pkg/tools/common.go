@@ -27,10 +27,10 @@ func ConvertHeaders(h map[string]interface{}) map[string]string {
 
 func WriteFile(fileName string, content []byte) {
 	f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0644)
-	defer f.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
+		defer f.Close()
 		_, err = f.Write(content)
 		if err != nil {
 			logger.Logger.Error("write to file error ", err)
@@ -41,10 +41,10 @@ func WriteFile(fileName string, content []byte) {
 func ReadFile(filePath string) []string {
 	filePaths := []string{}
 	f, err := os.OpenFile(filePath, os.O_RDONLY, 0644)
-	defer f.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
+		defer f.Close()
 		rd := bufio.NewReader(f)
 		for {
 			line, err := rd.ReadString('\n')
