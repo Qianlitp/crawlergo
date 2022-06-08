@@ -2,10 +2,11 @@ package engine
 
 import (
 	"context"
-	"crawlergo/pkg/logger"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/Qianlitp/crawlergo/pkg/logger"
 
 	"github.com/chromedp/cdproto/browser"
 	"github.com/chromedp/chromedp"

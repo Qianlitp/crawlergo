@@ -28,9 +28,15 @@ crawlergo currently supports the following features:
 
 **Build**
 
+- compilation for current platform
+
 ```shell
-cd crawlergo/cmd/crawlergo
-go build crawlergo_cmd.go
+make build
+```
+
+- compile for all platforms
+```shell
+make build_all
 ```
 
 1. crawlergo relies only on the chrome environment to run, go to [download](https://www.chromium.org/getting-involved/download-chromium) for the new version of chromium.
@@ -45,14 +51,14 @@ go build crawlergo_cmd.go
 Assuming your chromium installation directory is `/tmp/chromium/`, set up 10 tabs open at the same time and crawl the `testphp.vulnweb.com`:
 
 ```shell
-./crawlergo -c /tmp/chromium/chrome -t 10 http://testphp.vulnweb.com/
+bin/crawlergo -c /tmp/chromium/chrome -t 10 http://testphp.vulnweb.com/
 ```
 
 
 ### Using Proxy
 
 ```shell
-./crawlergo -c /tmp/chromium/chrome -t 10 --request-proxy socks5://127.0.0.1:7891 http://testphp.vulnweb.com/
+bin/crawlergo -c /tmp/chromium/chrome -t 10 --request-proxy socks5://127.0.0.1:7891 http://testphp.vulnweb.com/
 ```
 
 
@@ -70,7 +76,7 @@ import subprocess
 
 def main():
     target = "http://testphp.vulnweb.com/"
-    cmd = ["./crawlergo", "-c", "/tmp/chromium/chrome", "-o", "json", target]
+    cmd = ["bin/crawlergo", "-c", "/tmp/chromium/chrome", "-o", "json", target]
     rsp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = rsp.communicate()
 	#  "--[Mission Complete]--"  is the end-of-task separator string

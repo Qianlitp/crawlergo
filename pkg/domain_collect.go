@@ -1,9 +1,10 @@
 package pkg
 
 import (
-	"crawlergo/pkg/model"
-	mapset "github.com/deckarep/golang-set"
 	"strings"
+
+	"github.com/Qianlitp/crawlergo/pkg/model"
+	mapset "github.com/deckarep/golang-set"
 )
 
 func SubDomainCollect(reqList []*model.Request, HostLimit string) []string {

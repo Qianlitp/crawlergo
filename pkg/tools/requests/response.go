@@ -1,9 +1,10 @@
 package requests
 
 import (
-	"crawlergo/pkg/logger"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/Qianlitp/crawlergo/pkg/logger"
 )
 
 // 自定义一些函数

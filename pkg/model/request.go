@@ -1,13 +1,14 @@
 package model
 
 import (
-	"crawlergo/pkg/config"
-	"crawlergo/pkg/tools"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
 	"strings"
+
+	"github.com/Qianlitp/crawlergo/pkg/config"
+	"github.com/Qianlitp/crawlergo/pkg/tools"
 )
 
 type Filter struct {
@@ -17,6 +18,7 @@ type Filter struct {
 	MarkedPostDataMap map[string]interface{}
 	PostDataId        string
 	MarkedPath        string
+	FragmentID        string
 	PathId            string
 	UniqueId          string
 }

@@ -28,9 +28,15 @@ crawlergo 目前支持以下特性：
 
 **Build**
 
+- 编译适用于当前机器的文件
+
 ```shell
-cd crawlergo/cmd/crawlergo
-go build crawlergo_cmd.go
+make build
+```
+
+- 交叉编译所有平台的文件
+```shell
+make build_all
 ```
 
 1. crawlergo 只依赖chrome运行即可，前往[下载](https://www.chromium.org/getting-involved/download-chromium)新版本的chromium。
@@ -46,7 +52,7 @@ go build crawlergo_cmd.go
 假设你的chromium安装在 `/tmp/chromium/` ，开启最大10标签页，爬取AWVS靶场：
 
 ```shell
-./crawlergo -c /tmp/chromium/chrome -t 10 http://testphp.vulnweb.com/
+bin/crawlergo -c /tmp/chromium/chrome -t 10 http://testphp.vulnweb.com/
 ```
 
 
@@ -54,7 +60,7 @@ go build crawlergo_cmd.go
 ### 使用代理
 
 ```shell
-./crawlergo -c /tmp/chromium/chrome -t 10 --request-proxy socks5://127.0.0.1:7891 http://testphp.vulnweb.com/
+bin/crawlergo -c /tmp/chromium/chrome -t 10 --request-proxy socks5://127.0.0.1:7891 http://testphp.vulnweb.com/
 ```
 
 
@@ -73,7 +79,7 @@ import subprocess
 
 def main():
     target = "http://testphp.vulnweb.com/"
-    cmd = ["./crawlergo", "-c", "/tmp/chromium/chrome", "-o", "json", target]
+    cmd = ["bin/crawlergo", "-c", "/tmp/chromium/chrome", "-o", "json", target]
     rsp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = rsp.communicate()
 	#  "--[Mission Complete]--"  是任务结束的分隔字符串

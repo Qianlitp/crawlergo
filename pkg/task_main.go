@@ -1,14 +1,14 @@
 package pkg
 
 import (
-	"crawlergo/pkg/config"
-	engine2 "crawlergo/pkg/engine"
-	filter2 "crawlergo/pkg/filter"
-	"crawlergo/pkg/logger"
-	"crawlergo/pkg/model"
 	"encoding/json"
 	"sync"
-	"time"
+
+	"github.com/Qianlitp/crawlergo/pkg/config"
+	engine2 "github.com/Qianlitp/crawlergo/pkg/engine"
+	filter2 "github.com/Qianlitp/crawlergo/pkg/filter"
+	"github.com/Qianlitp/crawlergo/pkg/logger"
+	"github.com/Qianlitp/crawlergo/pkg/model"
 
 	"github.com/panjf2000/ants/v2"
 )
@@ -34,37 +34,10 @@ type Result struct {
 	resultLock    sync.Mutex       // 合并结果时加锁
 }
 
-type TaskConfig struct {
-	MaxCrawlCount           int    // 最大爬取的数量
-	FilterMode              string // simple、smart、strict
-	ExtraHeaders            map[string]interface{}
-	ExtraHeadersString      string
-	AllDomainReturn         bool // 全部域名收集
-	SubDomainReturn         bool // 子域名收集
-	IncognitoContext        bool // 开启隐身模式
-	NoHeadless              bool // headless模式
-	DomContentLoadedTimeout time.Duration
-	TabRunTimeout           time.Duration     // 单个标签页超时
-	PathByFuzz              bool              // 通过字典进行Path Fuzz
-	FuzzDictPath            string            //Fuzz目录字典
-	PathFromRobots          bool              // 解析Robots文件找出路径
-	MaxTabsCount            int               // 允许开启的最大标签页数量 即同时爬取的数量
-	ChromiumPath            string            // Chromium的程序路径  `/home/zhusiyu1/chrome-linux/chrome`
-	EventTriggerMode        string            // 事件触发的调用方式： 异步 或 顺序
-	EventTriggerInterval    time.Duration     // 事件触发的间隔
-	BeforeExitDelay         time.Duration     // 退出前的等待时间，等待DOM渲染，等待XHR发出捕获
-	EncodeURLWithCharset    bool              // 使用检测到的字符集自动编码URL
-	IgnoreKeywords          []string          // 忽略的关键字，匹配上之后将不再扫描且不发送请求
-	Proxy                   string            // 请求代理
-	CustomFormValues        map[string]string // 自定义表单填充参数
-	CustomFormKeywordValues map[string]string // 自定义表单关键词填充内容
-}
-
 type tabTask struct {
 	crawlerTask *CrawlerTask
 	browser     *engine2.Browser
 	req         *model.Request
-	pool        *ants.Pool
 }
 
 /**
@@ -99,41 +72,17 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 		req.Source = config.FromTarget
 	}
 
-	if taskConf.TabRunTimeout == 0 {
-		taskConf.TabRunTimeout = config.TabRunTimeout
-	}
-
-	if taskConf.MaxTabsCount == 0 {
-		taskConf.MaxTabsCount = config.MaxTabsCount
-	}
-
-	if taskConf.FilterMode == config.StrictFilterMode {
-		crawlerTask.smartFilter.StrictMode = true
-	}
-
-	if taskConf.MaxCrawlCount == 0 {
-		taskConf.MaxCrawlCount = config.MaxCrawlCount
-	}
-
-	if taskConf.DomContentLoadedTimeout == 0 {
-		taskConf.DomContentLoadedTimeout = config.DomContentLoadedTimeout
-	}
-
-	if taskConf.EventTriggerInterval == 0 {
-		taskConf.EventTriggerInterval = config.EventTriggerInterval
-	}
-
-	if taskConf.BeforeExitDelay == 0 {
-		taskConf.BeforeExitDelay = config.BeforeExitDelay
-	}
-
-	if taskConf.EventTriggerMode == "" {
-		taskConf.EventTriggerMode = config.DefaultEventTriggerMode
-	}
-
-	if len(taskConf.IgnoreKeywords) == 0 {
-		taskConf.IgnoreKeywords = config.DefaultIgnoreKeywords
-	}
+	// 业务代码与数据代码分离, 初始化一些默认配置
+	taskConf.SetConf(
+		WithTabRunTimeout(config.TabRunTimeout),
+		WithMaxTabsCount(config.MaxTabsCount),
+		WithMaxCrawlCount(config.MaxCrawlCount),
+		WithDomContentLoadedTimeout(config.DomContentLoadedTimeout),
+		WithEventTriggerInterval(config.EventTriggerInterval),
+		WithBeforeExitDelay(config.BeforeExitDelay),
+		WithEventTriggerMode(config.DefaultEventTriggerMode),
+		WithIgnoreKeywords(config.DefaultIgnoreKeywords),
+	)
 
 	if taskConf.ExtraHeadersString != "" {
 		err := json.Unmarshal([]byte(taskConf.ExtraHeadersString), &taskConf.ExtraHeaders)
@@ -215,9 +164,7 @@ func (t *CrawlerTask) Run() {
 
 	// 对全部请求进行唯一去重
 	todoFilterAll := make([]*model.Request, len(t.Result.AllReqList))
-	for index := range t.Result.AllReqList {
-		todoFilterAll[index] = t.Result.AllReqList[index]
-	}
+	copy(todoFilterAll, t.Result.AllReqList)
 
 	t.Result.AllReqList = []*model.Request{}
 	var simpleFilter filter2.SimpleFilter

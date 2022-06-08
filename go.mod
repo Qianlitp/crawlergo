@@ -1,6 +1,6 @@
-module crawlergo
+module github.com/Qianlitp/crawlergo
 
-go 1.12
+go 1.16
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.13.0
 

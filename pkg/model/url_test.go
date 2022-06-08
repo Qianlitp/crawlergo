@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -42,4 +43,16 @@ func TestRootDomain(t *testing.T) {
 			t.Errorf("%s not an icann domain", tc.domain)
 		}
 	}
+}
+
+func TestGetUrl(t *testing.T) {
+	testPath := "/user/info"
+	testQueyPath := "/user/info?keyword=crawlergocrawlergo&end=1"
+	url, err := GetUrl(testPath)
+	assert.Nil(t, err)
+	assert.NotNil(t, url)
+	queryUrl, err := GetUrl(testQueyPath)
+	assert.Nil(t, err)
+	assert.Equal(t, queryUrl.Path, testPath)
+	assert.Equal(t, queryUrl.RawQuery, "keyword=crawlergocrawlergo&end=1")
 }

@@ -1,10 +1,11 @@
 package filter
 
 import (
-	"crawlergo/pkg/config"
-	"crawlergo/pkg/model"
-	"github.com/deckarep/golang-set"
 	"strings"
+
+	"github.com/Qianlitp/crawlergo/pkg/config"
+	"github.com/Qianlitp/crawlergo/pkg/model"
+	mapset "github.com/deckarep/golang-set"
 )
 
 type SimpleFilter struct {

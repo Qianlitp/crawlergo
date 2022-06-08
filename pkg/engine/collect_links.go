@@ -2,13 +2,14 @@ package engine
 
 import (
 	"context"
-	"crawlergo/pkg/config"
-	"crawlergo/pkg/logger"
 	"fmt"
-	"github.com/chromedp/cdproto/cdp"
-	"github.com/chromedp/chromedp"
 	"regexp"
 	"time"
+
+	"github.com/Qianlitp/crawlergo/pkg/config"
+	"github.com/Qianlitp/crawlergo/pkg/logger"
+	"github.com/chromedp/cdproto/cdp"
+	"github.com/chromedp/chromedp"
 )
 
 /**
