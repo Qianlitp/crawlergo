@@ -73,7 +73,8 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 	}
 
 	// 业务代码与数据代码分离, 初始化一些默认配置
-	taskConf.SetConf(
+	// 使用 funtion option 和一个代理来初始化 taskConf 的配置
+	for _, fn := range []TaskConfigOptFunc{
 		WithTabRunTimeout(config.TabRunTimeout),
 		WithMaxTabsCount(config.MaxTabsCount),
 		WithMaxCrawlCount(config.MaxCrawlCount),
@@ -82,7 +83,9 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 		WithBeforeExitDelay(config.BeforeExitDelay),
 		WithEventTriggerMode(config.DefaultEventTriggerMode),
 		WithIgnoreKeywords(config.DefaultIgnoreKeywords),
-	)
+	} {
+		fn(&taskConf)
+	}
 
 	if taskConf.ExtraHeadersString != "" {
 		err := json.Unmarshal([]byte(taskConf.ExtraHeadersString), &taskConf.ExtraHeaders)

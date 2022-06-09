@@ -38,12 +38,6 @@ func NewTaskConfig(optFuncs ...TaskConfigOptFunc) *TaskConfig {
 	return conf
 }
 
-func (t *TaskConfig) SetConf(optFuncs ...TaskConfigOptFunc) {
-	for _, fn := range optFuncs {
-		fn(t)
-	}
-}
-
 func WithMaxCrawlCount(maxCrawlCount int) TaskConfigOptFunc {
 	return func(tc *TaskConfig) {
 		if tc.MaxCrawlCount == 0 {
