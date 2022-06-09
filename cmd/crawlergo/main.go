@@ -48,21 +48,26 @@ type ProxyTask struct {
 	pushProxy string
 }
 
-const DefaultMaxPushProxyPoolMax = 10
-const DefaultLogLevel = "Info"
+const (
+	DefaultMaxPushProxyPoolMax = 10
+	DefaultLogLevel            = "Info"
+)
 
-var taskConfig pkg.TaskConfig
-var outputMode string
-var postData string
-var signalChan chan os.Signal
-var ignoreKeywords *cli.StringSlice
-var customFormTypeValues *cli.StringSlice
-var customFormKeywordValues *cli.StringSlice
-var pushAddress string
-var pushProxyPoolMax int
-var pushProxyWG sync.WaitGroup
-var outputJsonPath string
-var logLevel string
+var (
+	taskConfig              pkg.TaskConfig
+	outputMode              string
+	postData                string
+	signalChan              chan os.Signal
+	ignoreKeywords          *cli.StringSlice
+	customFormTypeValues    *cli.StringSlice
+	customFormKeywordValues *cli.StringSlice
+	pushAddress             string
+	pushProxyPoolMax        int
+	pushProxyWG             sync.WaitGroup
+	outputJsonPath          string
+	logLevel                string
+	Version                 string
+)
 
 func main() {
 	author := cli.Author{
@@ -78,7 +83,7 @@ func main() {
 		Name:      "crawlergo",
 		Usage:     "A powerful browser crawler for web vulnerability scanners",
 		UsageText: "crawlergo [global options] url1 url2 url3 ... (must be same host)",
-		Version:   "v0.4.2",
+		Version:   Version,
 		Authors:   []*cli.Author{&author},
 		Flags:     cliFlags,
 		Action:    run,
