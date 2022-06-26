@@ -2,13 +2,14 @@ package tools
 
 import (
 	"bufio"
-	"crawlergo/pkg/logger"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/Qianlitp/crawlergo/pkg/logger"
 )
 
 func StrMd5(str string) string {

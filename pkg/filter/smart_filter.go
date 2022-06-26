@@ -1,15 +1,16 @@
 package filter
 
 import (
-	"crawlergo/pkg/config"
-	"crawlergo/pkg/logger"
-	"crawlergo/pkg/model"
-	"crawlergo/pkg/tools"
 	"go/types"
 	"regexp"
 	"sort"
 	"strings"
 	"sync"
+
+	"github.com/Qianlitp/crawlergo/pkg/config"
+	"github.com/Qianlitp/crawlergo/pkg/logger"
+	"github.com/Qianlitp/crawlergo/pkg/model"
+	"github.com/Qianlitp/crawlergo/pkg/tools"
 
 	mapset "github.com/deckarep/golang-set"
 )
@@ -97,17 +98,16 @@ func (s *SmartFilter) DoFilter(req *model.Request) bool {
 		return true
 	}
 
+	req.Filter.FragmentID = s.calcFragmentID(req.URL.Fragment)
+
 	// 标记
 	if req.Method == config.GET || req.Method == config.DELETE || req.Method == config.HEAD || req.Method == config.OPTIONS {
 		s.getMark(req)
+		s.repeatCountStatistic(req)
 	} else if req.Method == config.POST || req.Method == config.PUT {
 		s.postMark(req)
 	} else {
 		logger.Logger.Debug("dont support such method: " + req.Method)
-	}
-
-	if req.Method == config.GET || req.Method == config.DELETE || req.Method == config.HEAD || req.Method == config.OPTIONS {
-		s.repeatCountStatistic(req)
 	}
 
 	// 对标记后的请求进行去重
@@ -126,16 +126,16 @@ func (s *SmartFilter) DoFilter(req *model.Request) bool {
 		s.overCountMark(req)
 
 		// 重新计算 QueryMapId
-		req.Filter.QueryMapId = s.getParamMapID(req.Filter.MarkedQueryMap)
+		req.Filter.QueryMapId = getParamMapID(req.Filter.MarkedQueryMap)
 		// 重新计算 PathId
-		req.Filter.PathId = s.getPathID(req.Filter.MarkedPath)
+		req.Filter.PathId = getPathID(req.Filter.MarkedPath)
 	} else {
 		// 重新计算 PostDataId
-		req.Filter.PostDataId = s.getParamMapID(req.Filter.MarkedPostDataMap)
+		req.Filter.PostDataId = getParamMapID(req.Filter.MarkedPostDataMap)
 	}
 
 	// 重新计算请求唯一ID
-	req.Filter.UniqueId = s.getMarkedUniqueID(req)
+	req.Filter.UniqueId = getMarkedUniqueID(req)
 
 	// 新的ID再次去重
 	newUniqueId := req.Filter.UniqueId
@@ -173,21 +173,21 @@ func (s *SmartFilter) getMark(req *model.Request) {
 
 	// 依次打标记
 	queryMap := todoURL.QueryMap()
-	queryMap = s.markParamName(queryMap)
+	queryMap = markParamName(queryMap)
 	queryMap = s.markParamValue(queryMap, *req)
-	markedPath := s.MarkPath(todoURL.Path)
+	markedPath := MarkPath(todoURL.Path)
 
 	// 计算唯一的ID
 	var queryKeyID string
 	var queryMapID string
 	if len(queryMap) != 0 {
-		queryKeyID = s.getKeysID(queryMap)
-		queryMapID = s.getParamMapID(queryMap)
+		queryKeyID = getKeysID(queryMap)
+		queryMapID = getParamMapID(queryMap)
 	} else {
 		queryKeyID = ""
 		queryMapID = ""
 	}
-	pathID := s.getPathID(markedPath)
+	pathID := getPathID(markedPath)
 
 	req.Filter.MarkedQueryMap = queryMap
 	req.Filter.QueryKeysId = queryKeyID
@@ -196,7 +196,7 @@ func (s *SmartFilter) getMark(req *model.Request) {
 	req.Filter.PathId = pathID
 
 	// 最后计算标记后的唯一请求ID
-	req.Filter.UniqueId = s.getMarkedUniqueID(req)
+	req.Filter.UniqueId = getMarkedUniqueID(req)
 }
 
 /**
@@ -205,18 +205,18 @@ func (s *SmartFilter) getMark(req *model.Request) {
 func (s *SmartFilter) postMark(req *model.Request) {
 	postDataMap := req.PostDataMap()
 
-	postDataMap = s.markParamName(postDataMap)
+	postDataMap = markParamName(postDataMap)
 	postDataMap = s.markParamValue(postDataMap, *req)
-	markedPath := s.MarkPath(req.URL.Path)
+	markedPath := MarkPath(req.URL.Path)
 
 	// 计算唯一的ID
 	var postDataMapID string
 	if len(postDataMap) != 0 {
-		postDataMapID = s.getParamMapID(postDataMap)
+		postDataMapID = getParamMapID(postDataMap)
 	} else {
 		postDataMapID = ""
 	}
-	pathID := s.getPathID(markedPath)
+	pathID := getPathID(markedPath)
 
 	req.Filter.MarkedPostDataMap = postDataMap
 	req.Filter.PostDataId = postDataMapID
@@ -224,13 +224,13 @@ func (s *SmartFilter) postMark(req *model.Request) {
 	req.Filter.PathId = pathID
 
 	// 最后计算标记后的唯一请求ID
-	req.Filter.UniqueId = s.getMarkedUniqueID(req)
+	req.Filter.UniqueId = getMarkedUniqueID(req)
 }
 
 /**
 标记参数名
 */
-func (s *SmartFilter) markParamName(paramMap map[string]interface{}) map[string]interface{} {
+func markParamName(paramMap map[string]interface{}) map[string]interface{} {
 	markedParamMap := map[string]interface{}{}
 	for key, value := range paramMap {
 		// 纯字母不处理
@@ -300,7 +300,7 @@ func (s *SmartFilter) markParamValue(paramMap map[string]interface{}, req model.
 		} else if onlyAlphaNumRegex.MatchString(valueStr) && numberRegex.MatchString(valueStr) {
 			markedParamMap[key] = MixAlphaNumMark
 			// 含有一些特殊符号
-		} else if s.hasSpecialSymbol(valueStr) {
+		} else if hasSpecialSymbol(valueStr) {
 			markedParamMap[key] = MixSymbolMark
 			// 数字出现的次数超过3，视为数值型参数
 		} else if b := OneNumberRegex.ReplaceAllString(valueStr, "0"); strings.Count(b, "0") >= 3 {
@@ -339,7 +339,7 @@ func (s *SmartFilter) markParamValue(paramMap map[string]interface{}, req model.
 /**
 标记路径
 */
-func (s *SmartFilter) MarkPath(path string) string {
+func MarkPath(path string) string {
 	pathParts := strings.Split(path, "/")
 	for index, part := range pathParts {
 		if len(part) >= 32 {
@@ -356,7 +356,7 @@ func (s *SmartFilter) MarkPath(path string) string {
 				pathParts[index] = NumberMark
 			}
 			// 含有特殊符号
-		} else if s.hasSpecialSymbol(part) {
+		} else if hasSpecialSymbol(part) {
 			pathParts[index] = MixSymbolMark
 		} else if chineseRegex.MatchString(part) {
 			pathParts[index] = ChineseMark
@@ -464,7 +464,7 @@ func (s *SmartFilter) repeatCountStatistic(req *model.Request) {
 	}
 
 	// 相对于上一级目录，本级path目录的数量统计，存在文件后缀的情况下，放行常见脚本后缀
-	if req.URL.ParentPath() == "" || s.inCommonScriptSuffix(req.URL.FileExt()) {
+	if req.URL.ParentPath() == "" || inCommonScriptSuffix(req.URL.FileExt()) {
 		return
 	}
 
@@ -538,7 +538,7 @@ func (s *SmartFilter) overCountMark(req *model.Request) {
 	}
 
 	// 处理本级path的伪静态
-	if req.URL.ParentPath() == "" || s.inCommonScriptSuffix(req.URL.FileExt()) {
+	if req.URL.ParentPath() == "" || inCommonScriptSuffix(req.URL.FileExt()) {
 		return
 	}
 	parentPathId := tools.StrMd5(req.URL.ParentPath())
@@ -554,10 +554,27 @@ func (s *SmartFilter) overCountMark(req *model.Request) {
 	}
 }
 
+// calcFragmentID 计算 fragment 唯一值，如果 fragment 的格式为 url path
+func (s *SmartFilter) calcFragmentID(fragment string) string {
+	if fragment == "" || !strings.HasPrefix(fragment, "/") {
+		return ""
+	}
+	fakeUrl, err := model.GetUrl(fragment)
+	if err != nil {
+		logger.Logger.Error("cannot calculate url fragment: ", err)
+		return ""
+	}
+	// XXX: discuss https://github.com/Qianlitp/crawlergo/issues/100
+	fakeReq := model.GetRequest(config.GET, fakeUrl)
+	s.getMark(&fakeReq)
+	// s.repeatCountStatistic(&fakeReq)
+	return fakeReq.Filter.UniqueId
+}
+
 /**
 计算标记后的唯一请求ID
 */
-func (s *SmartFilter) getMarkedUniqueID(req *model.Request) string {
+func getMarkedUniqueID(req *model.Request) string {
 	var paramId string
 	if req.Method == config.GET || req.Method == config.DELETE || req.Method == config.HEAD || req.Method == config.OPTIONS {
 		paramId = req.Filter.QueryMapId
@@ -565,7 +582,7 @@ func (s *SmartFilter) getMarkedUniqueID(req *model.Request) string {
 		paramId = req.Filter.PostDataId
 	}
 
-	uniqueStr := req.Method + paramId + req.Filter.PathId + req.URL.Host
+	uniqueStr := req.Method + paramId + req.Filter.PathId + req.URL.Host + req.Filter.FragmentID
 	if req.RedirectionFlag {
 		uniqueStr += "Redirection"
 	}
@@ -573,16 +590,13 @@ func (s *SmartFilter) getMarkedUniqueID(req *model.Request) string {
 		uniqueStr += "https"
 	}
 
-	if req.URL.Fragment != "" && strings.HasPrefix(req.URL.Fragment, "/") {
-		uniqueStr += req.URL.Fragment
-	}
 	return tools.StrMd5(uniqueStr)
 }
 
 /**
 计算请求参数的key标记后的唯一ID
 */
-func (s *SmartFilter) getKeysID(dataMap map[string]interface{}) string {
+func getKeysID(dataMap map[string]interface{}) string {
 	var keys []string
 	var idStr string
 	for key := range dataMap {
@@ -598,7 +612,7 @@ func (s *SmartFilter) getKeysID(dataMap map[string]interface{}) string {
 /**
 计算请求参数标记后的唯一ID
 */
-func (s *SmartFilter) getParamMapID(dataMap map[string]interface{}) string {
+func getParamMapID(dataMap map[string]interface{}) string {
 	var keys []string
 	var idStr string
 	var markReplaceRegex = regexp.MustCompile(`{{.+}}`)
@@ -619,14 +633,14 @@ func (s *SmartFilter) getParamMapID(dataMap map[string]interface{}) string {
 /**
 计算PATH标记后的唯一ID
 */
-func (s *SmartFilter) getPathID(path string) string {
+func getPathID(path string) string {
 	return tools.StrMd5(path)
 }
 
 /**
 判断字符串中是否存在以下特殊符号
 */
-func (s *SmartFilter) hasSpecialSymbol(str string) bool {
+func hasSpecialSymbol(str string) bool {
 	symbolList := []string{"{", "}", " ", "|", "#", "@", "$", "*", ",", "<", ">", "/", "?", "\\", "+", "="}
 	for _, sym := range symbolList {
 		if strings.Contains(str, sym) {
@@ -636,7 +650,7 @@ func (s *SmartFilter) hasSpecialSymbol(str string) bool {
 	return false
 }
 
-func (s *SmartFilter) inCommonScriptSuffix(suffix string) bool {
+func inCommonScriptSuffix(suffix string) bool {
 	for _, value := range config.ScriptSuffix {
 		if value == suffix {
 			return true

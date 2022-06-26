@@ -2,12 +2,17 @@ package engine
 
 import (
 	"context"
-	"crawlergo/pkg/config"
-	"crawlergo/pkg/js"
-	"crawlergo/pkg/logger"
-	model2 "crawlergo/pkg/model"
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/Qianlitp/crawlergo/pkg/config"
+	"github.com/Qianlitp/crawlergo/pkg/js"
+	"github.com/Qianlitp/crawlergo/pkg/logger"
+	model2 "github.com/Qianlitp/crawlergo/pkg/model"
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/dom"
 	"github.com/chromedp/cdproto/fetch"
@@ -16,10 +21,6 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/gogf/gf/encoding/gcharset"
-	"regexp"
-	"strings"
-	"sync"
-	"time"
 )
 
 type Tab struct {

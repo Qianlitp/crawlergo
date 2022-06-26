@@ -3,20 +3,21 @@ package engine
 import (
 	"bufio"
 	"context"
-	"crawlergo/pkg/config"
-	"crawlergo/pkg/logger"
-	model2 "crawlergo/pkg/model"
-	"crawlergo/pkg/tools"
-	"crawlergo/pkg/tools/requests"
 	"encoding/base64"
-	"github.com/chromedp/cdproto/fetch"
-	"github.com/chromedp/cdproto/network"
 	"io"
 	"net/textproto"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Qianlitp/crawlergo/pkg/config"
+	"github.com/Qianlitp/crawlergo/pkg/logger"
+	model2 "github.com/Qianlitp/crawlergo/pkg/model"
+	"github.com/Qianlitp/crawlergo/pkg/tools"
+	"github.com/Qianlitp/crawlergo/pkg/tools/requests"
+	"github.com/chromedp/cdproto/fetch"
+	"github.com/chromedp/cdproto/network"
 )
 
 /**

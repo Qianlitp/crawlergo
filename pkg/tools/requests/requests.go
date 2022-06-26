@@ -2,14 +2,15 @@ package requests
 
 import (
 	"bytes"
-	"crawlergo/pkg/logger"
 	"crypto/tls"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/Qianlitp/crawlergo/pkg/logger"
+	"github.com/pkg/errors"
 )
 
 const DefaultUa = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)" +
