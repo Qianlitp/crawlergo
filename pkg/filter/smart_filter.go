@@ -651,10 +651,5 @@ func hasSpecialSymbol(str string) bool {
 }
 
 func inCommonScriptSuffix(suffix string) bool {
-	for _, value := range config.ScriptSuffix {
-		if value == suffix {
-			return true
-		}
-	}
-	return false
+	return config.ScriptSuffixSet.Contains(suffix)
 }

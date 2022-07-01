@@ -1,6 +1,10 @@
 package config
 
-import "time"
+import (
+	"time"
+
+	mapset "github.com/deckarep/golang-set"
+)
 
 const (
 	DefaultUA               = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.0 Safari/537.36"
@@ -68,19 +72,25 @@ const (
 	MULTIPART  = "multipart/form-data"
 )
 
-var StaticSuffix = []string{
-	"png", "gif", "jpg", "mp4", "mp3", "mng", "pct", "bmp", "jpeg", "pst", "psp", "ttf",
-	"tif", "tiff", "ai", "drw", "wma", "ogg", "wav", "ra", "aac", "mid", "au", "aiff",
-	"dxf", "eps", "ps", "svg", "3gp", "asf", "asx", "avi", "mov", "mpg", "qt", "rm",
-	"wmv", "m4a", "bin", "xls", "xlsx", "ppt", "pptx", "doc", "docx", "odt", "ods", "odg",
-	"odp", "exe", "zip", "rar", "tar", "gz", "iso", "rss", "pdf", "txt", "dll", "ico",
-	"gz2", "apk", "crt", "woff", "map", "woff2", "webp", "less", "dmg", "bz2", "otf", "swf",
-	"flv", "mpeg", "dat", "xsl", "csv", "cab", "exif", "wps", "m4v", "rmvb",
-}
+var (
+	StaticSuffix = []string{
+		"png", "gif", "jpg", "mp4", "mp3", "mng", "pct", "bmp", "jpeg", "pst", "psp", "ttf",
+		"tif", "tiff", "ai", "drw", "wma", "ogg", "wav", "ra", "aac", "mid", "au", "aiff",
+		"dxf", "eps", "ps", "svg", "3gp", "asf", "asx", "avi", "mov", "mpg", "qt", "rm",
+		"wmv", "m4a", "bin", "xls", "xlsx", "ppt", "pptx", "doc", "docx", "odt", "ods", "odg",
+		"odp", "exe", "zip", "rar", "tar", "gz", "iso", "rss", "pdf", "txt", "dll", "ico",
+		"gz2", "apk", "crt", "woff", "map", "woff2", "webp", "less", "dmg", "bz2", "otf", "swf",
+		"flv", "mpeg", "dat", "xsl", "csv", "cab", "exif", "wps", "m4v", "rmvb",
+	}
+	StaticSuffixSet mapset.Set
+)
 
-var ScriptSuffix = []string{
-	"php", "asp", "jsp", "asa",
-}
+var (
+	ScriptSuffix = []string{
+		"php", "asp", "jsp", "asa",
+	}
+	ScriptSuffixSet mapset.Set
+)
 
 var DefaultIgnoreKeywords = []string{"logout", "quit", "exit"}
 var AllowedFormName = []string{"default", "mail", "code", "phone", "username", "password", "qq", "id_card", "url", "date", "number"}
@@ -128,4 +138,17 @@ var InputTextMap = map[string]map[string]interface{}{
 		"keyword": []string{"day", "age", "num", "count"},
 		"value":   "10",
 	},
+}
+
+func init() {
+	StaticSuffixSet = initSet(StaticSuffix)
+	ScriptSuffixSet = initSet(ScriptSuffix)
+}
+
+func initSet(suffixs []string) mapset.Set {
+	set := mapset.NewSet()
+	for _, s := range suffixs {
+		set.Add(s)
+	}
+	return set
 }

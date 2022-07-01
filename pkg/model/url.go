@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"path"
 	"regexp"
 	"strings"
 
@@ -158,12 +159,12 @@ func (u *URL) FileName() string {
 文件扩展名
 */
 func (u *URL) FileExt() string {
-	fileName := u.FileName()
-	if fileName == "" {
-		return ""
+	parts := path.Ext(u.Path)
+	// 第一个字符会带有 "."
+	if len(parts) > 0 {
+		return strings.ToLower(parts[1:])
 	}
-	parts := strings.Split(fileName, ".")
-	return strings.ToLower(parts[len(parts)-1])
+	return parts
 }
 
 /**

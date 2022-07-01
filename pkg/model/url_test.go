@@ -45,6 +45,22 @@ func TestRootDomain(t *testing.T) {
 	}
 }
 
+func TestFileExt(t *testing.T) {
+	noExtPath := "/user/info"
+	hasExtPath := "/user/info.html"
+	hasExtPathMoreChar := "/user/info.html%2"
+	url, err := GetUrl(noExtPath)
+	assert.Nil(t, err)
+	assert.NotNil(t, url)
+	assert.Equal(t, "", url.FileExt())
+	hasExtUrl, err := GetUrl(hasExtPath)
+	assert.Nil(t, err)
+	assert.Equal(t, "html", hasExtUrl.FileExt())
+	hasExtChar, err := GetUrl(hasExtPathMoreChar)
+	assert.Nil(t, err)
+	assert.Equal(t, "html%2", hasExtChar.FileExt())
+}
+
 func TestGetUrl(t *testing.T) {
 	testPath := "/user/info"
 	testQueyPath := "/user/info?keyword=crawlergocrawlergo&end=1"
