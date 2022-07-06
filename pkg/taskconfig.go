@@ -9,7 +9,6 @@ type TaskConfig struct {
 	ExtraHeadersString      string
 	AllDomainReturn         bool // 全部域名收集
 	SubDomainReturn         bool // 子域名收集
-	IncognitoContext        bool // 开启隐身模式
 	NoHeadless              bool // headless模式
 	DomContentLoadedTimeout time.Duration
 	TabRunTimeout           time.Duration     // 单个标签页超时
@@ -84,13 +83,7 @@ func WithSubDomainReturn(gen bool) TaskConfigOptFunc {
 		}
 	}
 }
-func WithIncognitoContext(gen bool) TaskConfigOptFunc {
-	return func(tc *TaskConfig) {
-		if !tc.IncognitoContext {
-			tc.IncognitoContext = gen
-		}
-	}
-}
+
 func WithNoHeadless(gen bool) TaskConfigOptFunc {
 	return func(tc *TaskConfig) {
 		if !tc.NoHeadless {
