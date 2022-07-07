@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"golang.org/x/net/publicsuffix"
+
+	"github.com/Qianlitp/crawlergo/pkg/tools/requests"
 )
 
 type URL struct {
@@ -17,7 +19,6 @@ type URL struct {
 
 func GetUrl(_url string, parentUrls ...URL) (*URL, error) {
 	// 补充解析URL为完整格式
-	logger.Debug("url %s", _url)
 	var u URL
 	_url, err := u.parse(_url, parentUrls...)
 	if err != nil {
@@ -25,7 +26,7 @@ func GetUrl(_url string, parentUrls ...URL) (*URL, error) {
 	}
 
 	if len(parentUrls) == 0 {
-		_u, err := UrlParse(_url)
+		_u, err := requests.UrlParse(_url)
 
 		if err != nil {
 			return nil, err
