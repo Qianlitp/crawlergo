@@ -21,11 +21,7 @@ type Browser struct {
 	lock         sync.Mutex
 }
 
-func init() {
-
-}
-
-func InitBrowser(chromiumPath string, incognito bool, extraHeaders map[string]interface{}, proxy string, noHeadless bool) *Browser {
+func InitBrowser(chromiumPath string, extraHeaders map[string]interface{}, proxy string, noHeadless bool) *Browser {
 	var bro Browser
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 
@@ -33,10 +29,10 @@ func InitBrowser(chromiumPath string, incognito bool, extraHeaders map[string]in
 		chromedp.ExecPath(chromiumPath),
 		// 无头模式
 		chromedp.Flag("headless", !noHeadless),
+		// https://github.com/chromedp/chromedp/issues/997#issuecomment-1030596050
+		// incognito mode not used
 		// 禁用GPU，不显示GUI
 		chromedp.Flag("disable-gpu", true),
-		// 隐身模式启动
-		chromedp.Flag("incognito", incognito),
 		// 取消沙盒模式
 		chromedp.Flag("no-sandbox", true),
 		// 忽略证书错误

@@ -3,6 +3,7 @@ package engine
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -34,7 +35,6 @@ type Tab struct {
 	NavNetworkID     string
 	PageCharset      string
 	PageBindings     map[string]interface{}
-	NavDone          chan int
 	FoundRedirection bool
 	DocBodyNodeId    cdp.NodeID
 	config           TabConfig
@@ -82,7 +82,6 @@ func NewTab(browser *Browser, navigateReq model2.Request, config TabConfig) *Tab
 	}
 	tab.NavigateReq = navigateReq
 	tab.config = config
-	tab.NavDone = make(chan int)
 	tab.DocBodyNodeId = 0
 
 	// 设置请求拦截监听
@@ -159,33 +158,6 @@ func NewTab(browser *Browser, navigateReq model2.Request, config TabConfig) *Tab
 	return &tab
 }
 
-/**
-
- */
-func waitNavigateDone(ctx context.Context) error {
-	ch := make(chan struct{})
-	lCtx, lCancel := context.WithCancel(ctx)
-	tCtx, cancel := context.WithTimeout(ctx, config.DomContentLoadedTimeout)
-	defer cancel()
-	chromedp.ListenTarget(lCtx, func(ev interface{}) {
-		if _, ok := ev.(*page.EventDomContentEventFired); ok {
-			lCancel()
-			close(ch)
-		} else if _, ok := ev.(*page.EventLoadEventFired); ok {
-			lCancel()
-			close(ch)
-		}
-	})
-	select {
-	case <-ch:
-		return nil
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-tCtx.Done():
-		return tCtx.Err()
-	}
-}
-
 func (tab *Tab) Start() {
 	logger.Logger.Info("Crawling " + tab.NavigateReq.Method + " " + tab.NavigateReq.URL.String())
 	defer tab.Cancel()
@@ -212,30 +184,25 @@ func (tab *Tab) Start() {
 			}),
 			network.SetExtraHTTPHeaders(tab.ExtraHeaders),
 			// 执行导航
-			//chromedp.Navigate(tab.NavigateReq.URL.String()),
-			chromedp.ActionFunc(func(ctx context.Context) error {
-				_, _, _, err := page.Navigate(tab.NavigateReq.URL.String()).Do(ctx)
-				if err != nil {
-					return err
-				}
-				return waitNavigateDone(ctx)
-			}),
+			chromedp.Navigate(tab.NavigateReq.URL.String()),
 		}),
 	); err != nil {
-		if err.Error() == "context canceled" {
+		if errors.Is(err, context.Canceled) {
+			logger.Logger.Debug("Crawling Canceled")
 			return
 		}
 		logger.Logger.Warn("navigate timeout ", tab.NavigateReq.URL.String())
 	}
 
-	go func() {
-		// 等待所有协程任务结束
+	waitDone := func() <-chan struct{} {
 		tab.WG.Wait()
-		tab.NavDone <- 1
-	}()
+		ch := make(chan struct{})
+		defer close(ch)
+		return ch
+	}
 
 	select {
-	case <-tab.NavDone:
+	case <-waitDone():
 		logger.Logger.Debug("all navigation tasks done.")
 	case <-time.After(tab.config.DomContentLoadedTimeout + time.Second*10):
 		logger.Logger.Warn("navigation tasks TIMEOUT.")
@@ -405,7 +372,7 @@ func (tab *Tab) DetectCharset() {
 	var ok bool
 	var getCharsetRegex = regexp.MustCompile("charset=(.+)$")
 	err := chromedp.AttributeValue(`meta[http-equiv=Content-Type]`, "content", &content, &ok, chromedp.ByQuery).Do(tCtx)
-	if err != nil || ok != true {
+	if err != nil || !ok {
 		return
 	}
 	if strings.Contains(content, "charset=") {

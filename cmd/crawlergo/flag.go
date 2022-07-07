@@ -98,19 +98,9 @@ func SetOutputMode() *cli.StringFlag {
 
 func SetOutputJSON() *cli.StringFlag {
 	return &cli.StringFlag{
-		Name:        "output-dir",
+		Name:        "output-json",
 		Usage:       "write output to a json file.Such as result_www_test_com.json",
 		Destination: &outputJsonPath,
-	}
-}
-
-func SetIgcognitoContext() *cli.BoolFlag {
-	return &cli.BoolFlag{
-		Name:        "incognito-context",
-		Aliases:     []string{"i"},
-		Value:       true,
-		Usage:       "whether the browser is launched in incognito mode.",
-		Destination: &taskConfig.IncognitoContext,
 	}
 }
 

@@ -50,13 +50,12 @@ func (tab *Tab) InterceptRequest(v *fetch.EventRequestPaused) {
 	tab.HandleHostBinding(&req)
 
 	// 静态资源 全部阻断
-	for _, suffix := range config.StaticSuffix {
-		if strings.HasSuffix(strings.ToLower(url.Path), suffix) {
-			_ = fetch.FailRequest(v.RequestID, network.ErrorReasonBlockedByClient).Do(ctx)
-			req.Source = config.FromStaticRes
-			tab.AddResultRequest(req)
-			return
-		}
+	// https://github.com/Qianlitp/crawlergo/issues/106
+	if config.StaticSuffixSet.Contains(url.FileExt()) {
+		_ = fetch.FailRequest(v.RequestID, network.ErrorReasonBlockedByClient).Do(ctx)
+		req.Source = config.FromStaticRes
+		tab.AddResultRequest(req)
+		return
 	}
 
 	// 处理导航请求
