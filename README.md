@@ -182,7 +182,6 @@ https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-te
 * `--form-keyword-values, -fkv` Customize the value of the form fill, set by keyword fuzzy match. The keyword matches the four attribute values of `id`, `name`, `class`, `type` of the input box label. For example, fuzzy match the pass keyword to fill 123456 and the user keyword to fill admin, `-fkv user=admin -fkv pass=123456`. (Default: Cralwergo)
 
 ### Advanced settings for the crawling process
-* `--incognito-context, -i`   Browser start incognito mode. (Default: true)
 * `--max-tab-count Number, -t Number`   The maximum number of tabs the crawler can open at the same time. (Default: 8)
 * `--tab-run-timeout Timeout`   Maximum runtime for a single tab page. (Default: 20s)
 * `--wait-dom-content-loaded-timeout Timeout`  The maximum timeout to wait for the page to finish loading. (Default: 5s)
