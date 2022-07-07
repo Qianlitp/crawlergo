@@ -3,6 +3,7 @@ package engine
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -186,7 +187,8 @@ func (tab *Tab) Start() {
 			chromedp.Navigate(tab.NavigateReq.URL.String()),
 		}),
 	); err != nil {
-		if err.Error() == "context canceled" {
+		if errors.Is(err, context.Canceled) {
+			logger.Logger.Debug("Crawling Canceled")
 			return
 		}
 		logger.Logger.Warn("navigate timeout ", tab.NavigateReq.URL.String())
