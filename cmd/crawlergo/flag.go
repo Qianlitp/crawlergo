@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/Qianlitp/crawlergo/pkg/config"
-
 	"github.com/urfave/cli/v2"
 )
 
@@ -16,7 +14,7 @@ var cliFlags = []cli.Flag{
 	SetFilterMod(),
 	SetOutputMode(),
 	SetOutputJSON(),
-	SetIgcognitoContext(),
+	//SetIgcognitoContext(),
 	SetMaxTabCount(),
 	SetFuzzPath(),
 	SetFuzzPathDict(),
