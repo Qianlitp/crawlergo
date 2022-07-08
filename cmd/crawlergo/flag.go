@@ -40,7 +40,6 @@ func SetChromePath() *cli.PathFlag {
 		Name:        "chromium-path",
 		Aliases:     []string{"c"},
 		Usage:       "`Path` of chromium executable. Such as \"/home/test/chrome-linux/chrome\"",
-		Required:    true,
 		Destination: &taskConfig.ChromiumPath,
 		EnvVars:     []string{"CRAWLERGO_CHROMIUM_PATH"},
 	}
