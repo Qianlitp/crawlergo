@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Qianlitp/crawlergo/data"
 	"github.com/Qianlitp/crawlergo/pkg/config"
 	"github.com/Qianlitp/crawlergo/pkg/js"
 	"github.com/Qianlitp/crawlergo/pkg/logger"
@@ -29,6 +30,7 @@ type Tab struct {
 	Cancel           context.CancelFunc
 	NavigateReq      model2.Request
 	ExtraHeaders     map[string]interface{}
+	ResponsePage     string
 	ResultList       []*model2.Request
 	TopFrameId       string
 	LoaderID         string
@@ -58,6 +60,7 @@ type TabConfig struct {
 	BeforeExitDelay         time.Duration // 退出前的等待时间，等待DOM渲染，等待XHR发出捕获
 	EncodeURLWithCharset    bool
 	IgnoreKeywords          []string //
+	IgnoreResponseKeywords  []string
 	Proxy                   string
 	CustomFormValues        map[string]string
 	CustomFormKeywordValues map[string]string
@@ -159,8 +162,33 @@ func NewTab(browser *Browser, navigateReq model2.Request, config TabConfig) *Tab
 }
 
 func (tab *Tab) Start() {
-	logger.Logger.Info("Crawling " + tab.NavigateReq.Method + " " + tab.NavigateReq.URL.String())
+
+	defer func() bool {
+		if r := recover(); r != nil {
+			logger.Logger.Error("Error in tab start:", r)
+			tab.Cancel()
+		}
+		return true
+	}()
 	defer tab.Cancel()
+	var outerpage string
+	// 判断是否爬取该tab
+
+	if err := chromedp.Run(*tab.Ctx, chromedp.Tasks{
+		chromedp.Navigate(tab.NavigateReq.URL.String()),
+		chromedp.OuterHTML("html", &outerpage),
+	}); err != nil {
+		panic(err)
+	}
+	tab.ResponsePage = outerpage
+	if is_ignore_response := IsIgnoredByResponseKeywordMatch(tab.config.IgnoreResponseKeywords, outerpage, tab.NavigateReq.URL.String()); is_ignore_response {
+		data.ExcludeReqlist = append(data.ExcludeReqlist, tab.NavigateReq.URL.String())
+		tab.DeleteResultUrl()
+		return
+	}
+
+	logger.Logger.Info("Crawling " + tab.NavigateReq.Method + " " + tab.NavigateReq.URL.String())
+
 	if err := chromedp.Run(*tab.Ctx,
 		RunWithTimeOut(tab.Ctx, tab.config.DomContentLoadedTimeout, chromedp.Tasks{
 			//
@@ -193,7 +221,6 @@ func (tab *Tab) Start() {
 		}
 		logger.Logger.Warn("navigate timeout ", tab.NavigateReq.URL.String())
 	}
-
 	waitDone := func() <-chan struct{} {
 		tab.WG.Wait()
 		ch := make(chan struct{})
@@ -275,6 +302,16 @@ func (tab *Tab) AddResultUrl(method string, _url string, source string) {
 	tab.lock.Lock()
 	tab.ResultList = append(tab.ResultList, &req)
 	tab.lock.Unlock()
+}
+
+func (tab *Tab) DeleteResultUrl() {
+	for i := 0; i < len(tab.ResultList); i++ {
+		if tab.ResultList[i].URL.String() == tab.NavigateReq.URL.String() {
+			tab.ResultList = append(tab.ResultList[:i], tab.ResultList[i+1:]...)
+			logger.Logger.Info("删除无效地址：", tab.NavigateReq.URL.String())
+
+		}
+	}
 }
 
 /**
@@ -404,6 +441,17 @@ func IsIgnoredByKeywordMatch(req model2.Request, IgnoreKeywords []string) bool {
 	for _, _str := range IgnoreKeywords {
 		if strings.Contains(req.URL.String(), _str) {
 			logger.Logger.Info("ignore request: ", req.SimpleFormat())
+			return true
+		}
+	}
+	return false
+}
+
+func IsIgnoredByResponseKeywordMatch(IgnoreResponseKeywords []string, outerhtml string, url string) bool {
+	for _, _str := range IgnoreResponseKeywords {
+
+		if strings.Contains(outerhtml, _str) {
+			logger.Logger.Info("ignore request because of response: ", url)
 			return true
 		}
 	}

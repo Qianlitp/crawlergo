@@ -6,3 +6,7 @@ result
 .DS_Store
 internal/.DS_Store
 pkg/.DS_Store
+pkg/mod
+pkg/sumdb
+flag
+main.go

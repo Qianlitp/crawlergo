@@ -11,6 +11,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/Qianlitp/crawlergo/data"
 	"github.com/Qianlitp/crawlergo/pkg"
 	"github.com/Qianlitp/crawlergo/pkg/config"
 	"github.com/Qianlitp/crawlergo/pkg/logger"
@@ -59,6 +60,7 @@ var (
 	postData                string
 	signalChan              chan os.Signal
 	ignoreKeywords          *cli.StringSlice
+	ignoreResponseKeywords  *cli.StringSlice
 	customFormTypeValues    *cli.StringSlice
 	customFormKeywordValues *cli.StringSlice
 	pushAddress             string
@@ -76,6 +78,7 @@ func main() {
 	}
 
 	ignoreKeywords = cli.NewStringSlice(config.DefaultIgnoreKeywords...)
+	ignoreResponseKeywords = cli.NewStringSlice()
 	customFormTypeValues = cli.NewStringSlice()
 	customFormKeywordValues = cli.NewStringSlice()
 
@@ -126,8 +129,14 @@ func run(c *cli.Context) error {
 		}
 		req.Proxy = taskConfig.Proxy
 		targets = append(targets, &req)
+		data.Domain = strings.Split(url.Host, ":")[0]
 	}
-	taskConfig.IgnoreKeywords = ignoreKeywords.Value()
+
+	taskConfig.IgnoreKeywords = c.StringSlice("ignore-url-keywords")
+	//taskConfig.IgnoreKeywords = ignoreKeywords.Value()
+	taskConfig.IgnoreResponseKeywords = c.StringSlice("ignore-response-keywords")
+	//taskConfig.IgnoreResponseKeywords = ignoreResponseKeywords.Value()
+
 	if taskConfig.Proxy != "" {
 		logger.Logger.Info("request with proxy: ", taskConfig.Proxy)
 	}
@@ -175,6 +184,27 @@ func run(c *cli.Context) error {
 	logger.Logger.Info("Start crawling.")
 	task.Run()
 	result := task.Result
+
+	// 根据ignoreResponseKeywords设置过滤请求
+	for i := 0; i < len(result.ReqList); i++ {
+		for j := 0; j < len(data.ExcludeReqlist); j++ {
+			if data.ExcludeReqlist[j] == result.ReqList[i].URL.String() {
+				result.ReqList = append(result.ReqList[:i], result.ReqList[i+1:]...)
+				break
+			}
+		}
+
+	}
+
+	for i := 0; i < len(result.AllReqList); i++ {
+		for j := 0; j < len(data.ExcludeReqlist); j++ {
+			if data.ExcludeReqlist[j] == result.AllReqList[i].URL.String() {
+				result.AllReqList = append(result.AllReqList[:i], result.AllReqList[i+1:]...)
+				break
+			}
+		}
+
+	}
 
 	logger.Logger.Info(fmt.Sprintf("Task finished, %d results, %d requests, %d subdomains, %d domains found.",
 		len(result.ReqList), len(result.AllReqList), len(result.SubDomainList), len(result.AllDomainList)))

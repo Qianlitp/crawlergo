@@ -178,6 +178,7 @@ https://intoli.com/blog/not-possible-to-block-chrome-headless/chrome-headless-te
 
 ### Form auto-fill
 * `--ignore-url-keywords, -iuk` URL keyword that you don't want to visit, generally used to exclude logout links when customizing cookies. Usage: `-iuk logout -iuk exit`. (default: "logout", "quit", "exit")
+* `--ignore-response-keywords, -irk` crawlergo will not add request which has a keyword in response into output result`. e.g.: -irk login
 * `--form-values, -fv` Customize the value of the form fill, set by text type. Support definition types: default, mail, code, phone, username, password, qq, id_card, url, date and number. Text types are identified by the four attribute value keywords `id`, `name`, `class`, `type` of the input box label. For example, define the mailbox input box to be automatically filled with A and the password input box to be automatically filled with B, `-fv mail=A -fv password=B`.Where default represents the fill value when the text type is not recognized, as "Cralwergo". (Default: Cralwergo)
 * `--form-keyword-values, -fkv` Customize the value of the form fill, set by keyword fuzzy match. The keyword matches the four attribute values of `id`, `name`, `class`, `type` of the input box label. For example, fuzzy match the pass keyword to fill 123456 and the user keyword to fill admin, `-fkv user=admin -fkv pass=123456`. (Default: Cralwergo)
 

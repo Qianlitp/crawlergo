@@ -211,7 +211,6 @@ func (tab *Tab) ParseResponseURL(v *network.EventResponseReceived) {
 		if strings.HasPrefix(url_lower, "image/x-icon") || strings.HasPrefix(url_lower, "text/css") || strings.HasPrefix(url_lower, "text/javascript") {
 			continue
 		}
-
 		tab.AddResultUrl(config.GET, url, config.FromJSFile)
 	}
 }

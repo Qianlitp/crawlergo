@@ -221,6 +221,7 @@ func (t *tabTask) Task() {
 		BeforeExitDelay:         t.crawlerTask.Config.BeforeExitDelay,
 		EncodeURLWithCharset:    t.crawlerTask.Config.EncodeURLWithCharset,
 		IgnoreKeywords:          t.crawlerTask.Config.IgnoreKeywords,
+		IgnoreResponseKeywords:  t.crawlerTask.Config.IgnoreResponseKeywords,
 		CustomFormValues:        t.crawlerTask.Config.CustomFormValues,
 		CustomFormKeywordValues: t.crawlerTask.Config.CustomFormKeywordValues,
 	})

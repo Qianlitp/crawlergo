@@ -4,7 +4,10 @@ import (
 	"strings"
 
 	"github.com/Qianlitp/crawlergo/pkg/config"
+	"github.com/Qianlitp/crawlergo/pkg/logger"
 	"github.com/Qianlitp/crawlergo/pkg/model"
+	"github.com/Qianlitp/crawlergo/pkg/tools"
+	"github.com/Qianlitp/crawlergo/pkg/tools/requests"
 	mapset "github.com/deckarep/golang-set"
 )
 
@@ -42,6 +45,10 @@ func (s *SimpleFilter) DoFilter(req *model.Request) bool {
 	if s.StaticFilter(req) {
 		return true
 	}
+	// 过滤异常请求
+	if s.RequestFilter(req) {
+		return true
+	}
 	return false
 }
 
@@ -73,6 +80,29 @@ func (s *SimpleFilter) StaticFilter(req *model.Request) bool {
 		return false
 	}
 	if staticSuffixSet.Contains(req.URL.FileExt()) {
+		return true
+	}
+	return false
+}
+
+//过滤不符合条件的请求
+func (s *SimpleFilter) RequestFilter(req *model.Request) bool {
+	defer func() bool {
+		if r := recover(); r != nil {
+			logger.Logger.Error("There was an error:", r)
+		}
+		return true
+	}()
+	res, err := requests.Get(req.URL.String(), tools.ConvertHeaders(req.Headers),
+		&requests.ReqOptions{AllowRedirect: false,
+			Timeout: 5,
+			Proxy:   req.Proxy})
+	// 用于处理报错情况,比如协议是http但是用了https
+	if err != nil {
+		panic(err)
+	}
+	// 如果返回404\502过滤该请求
+	if res.StatusCode == 404 || res.StatusCode == 502 {
 		return true
 	}
 	return false

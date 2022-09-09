@@ -3,12 +3,15 @@ package engine
 import (
 	"context"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/Qianlitp/crawlergo/data"
 	"github.com/Qianlitp/crawlergo/pkg/logger"
-
 	"github.com/chromedp/cdproto/browser"
+	"github.com/chromedp/cdproto/network"
+	"github.com/chromedp/cdproto/storage"
 	"github.com/chromedp/chromedp"
 )
 
@@ -67,9 +70,26 @@ func InitBrowser(chromiumPath string, extraHeaders map[string]interface{}, proxy
 	bctx, _ := chromedp.NewContext(allocCtx,
 		chromedp.WithLogf(log.Printf),
 	)
+
+	// 获取cookie并存储在浏览器本地
+	var cookies []*network.CookieParam
+	if cookievalue, ok := extraHeaders["Cookie"]; ok {
+		cookievalue := cookievalue.(string)
+		cookielist := strings.Split(cookievalue, ";")
+		var mapcookie network.CookieParam
+		for indexi := range cookielist {
+			cookiekv := strings.Split(cookielist[indexi], "=")
+			mapcookie.Name = strings.TrimSpace(cookiekv[0])
+			mapcookie.Value = cookiekv[1]
+			mapcookie.Domain = data.Domain
+		}
+		cookies = append(cookies, &mapcookie)
+
+	}
+
 	// https://github.com/chromedp/chromedp/issues/824#issuecomment-845664441
 	// 如果需要在一个浏览器上创建多个tab，则需要先创建浏览器的上下文，即运行下面的语句
-	err := chromedp.Run(bctx)
+	err := chromedp.Run(bctx, storage.SetCookies(cookies))
 	if err != nil {
 		// not found chrome process need exit
 		logger.Logger.Fatal("chromedp run error: ", err.Error())

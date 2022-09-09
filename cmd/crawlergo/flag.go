@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/Qianlitp/crawlergo/pkg/config"
 	"github.com/urfave/cli/v2"
 )
@@ -27,6 +28,7 @@ var cliFlags = []cli.Flag{
 	SetEventTriggerInterval(),
 	SetBeforeExitDelay(),
 	SetIgnoreUrlKeywords(),
+	SetIgnoreResponseKeywords(),
 	SetFormValues(),
 	SetFormKeywordValue(),
 	SetPushToProxy(),
@@ -213,6 +215,15 @@ func SetIgnoreUrlKeywords() *cli.StringSliceFlag {
 		Value:       ignoreKeywords,
 		Usage:       "crawlergo will not crawl these URLs matched by `Keywords`. e.g.: -iuk logout -iuk quit -iuk exit",
 		DefaultText: "Default [logout quit exit]",
+	}
+}
+
+func SetIgnoreResponseKeywords() *cli.StringSliceFlag {
+	return &cli.StringSliceFlag{
+		Name:    "ignore-response-keywords",
+		Aliases: []string{"irk"},
+		Value:   ignoreResponseKeywords,
+		Usage:   "crawlergo will not add request which has a keyword in response into output result`. e.g.: -irk login",
 	}
 }
 

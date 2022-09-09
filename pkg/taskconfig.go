@@ -22,6 +22,7 @@ type TaskConfig struct {
 	BeforeExitDelay         time.Duration     // 退出前的等待时间，等待DOM渲染，等待XHR发出捕获
 	EncodeURLWithCharset    bool              // 使用检测到的字符集自动编码URL
 	IgnoreKeywords          []string          // 忽略的关键字，匹配上之后将不再扫描且不发送请求
+	IgnoreResponseKeywords  []string          // 忽略的response关键字，response里带该关键字时将不把该请求放入结果
 	Proxy                   string            // 请求代理
 	CustomFormValues        map[string]string // 自定义表单填充参数
 	CustomFormKeywordValues map[string]string // 自定义表单关键词填充内容
@@ -177,6 +178,15 @@ func WithIgnoreKeywords(gen []string) TaskConfigOptFunc {
 		}
 	}
 }
+
+func WithIgnoreResponseKeywords(gen []string) TaskConfigOptFunc {
+	return func(tc *TaskConfig) {
+		if tc.IgnoreResponseKeywords == nil || len(tc.IgnoreKeywords) == 0 {
+			tc.IgnoreResponseKeywords = gen
+		}
+	}
+}
+
 func WithProxy(gen string) TaskConfigOptFunc {
 	return func(tc *TaskConfig) {
 		if tc.Proxy == "" {
