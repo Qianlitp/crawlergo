@@ -409,3 +409,13 @@ func IsIgnoredByKeywordMatch(req model2.Request, IgnoreKeywords []string) bool {
 	}
 	return false
 }
+
+func IsIgnoredByRegexpMatch(req model2.Request, IgnorePatterns []*regexp.Regexp) bool {
+	for _, r := range IgnorePatterns {
+		if r.MatchString(req.URL.String()) {
+			logger.Logger.Info("ignore request (regexp match): ", req.SimpleFormat())
+			return true
+		}
+	}
+	return false
+}

@@ -1,6 +1,9 @@
 package pkg
 
-import "time"
+import (
+	"regexp"
+	"time"
+)
 
 type TaskConfig struct {
 	MaxCrawlCount           int    // 最大爬取的数量
@@ -22,6 +25,7 @@ type TaskConfig struct {
 	BeforeExitDelay         time.Duration     // 退出前的等待时间，等待DOM渲染，等待XHR发出捕获
 	EncodeURLWithCharset    bool              // 使用检测到的字符集自动编码URL
 	IgnoreKeywords          []string          // 忽略的关键字，匹配上之后将不再扫描且不发送请求
+	IgnorePatterns          []*regexp.Regexp  // URL patterns to ignore
 	Proxy                   string            // 请求代理
 	CustomFormValues        map[string]string // 自定义表单填充参数
 	CustomFormKeywordValues map[string]string // 自定义表单关键词填充内容
