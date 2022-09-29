@@ -158,7 +158,8 @@ func (t *CrawlerTask) Run() {
 	logger.Logger.Info("filter repeat, target count: ", len(initTasks))
 
 	for _, req := range initTasks {
-		if !engine2.IsIgnoredByKeywordMatch(*req, t.Config.IgnoreKeywords) {
+		if !engine2.IsIgnoredByKeywordMatch(*req, t.Config.IgnoreKeywords) &&
+			!engine2.IsIgnoredByRegexpMatch(*req, t.Config.IgnorePatterns) {
 			t.addTask2Pool(req)
 		}
 	}

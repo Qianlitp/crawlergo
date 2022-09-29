@@ -9,6 +9,7 @@ import (
 
 var cliFlags = []cli.Flag{
 	SetIgnorePatterns(),
+	SetCrawlTimeout(),
 	SetChromePath(),
 	SetCustomHeaders(),
 	SetPostData(),
@@ -107,8 +108,15 @@ func SetIgnorePatterns() *cli.StringSliceFlag {
 	return &cli.StringSliceFlag{
 		Name:    "ignore-patterns",
 		Aliases: []string{"ipm"},
-		Value:   ignorePatterns,
 		Usage:   "crawlergo will not crawl these URLs matched by regular expressions. e.g.: -irm https?://foo.bar.com/[0-9].html http://.*.xxx.com",
+	}
+}
+
+func SetCrawlTimeout() *cli.DurationFlag {
+	return &cli.DurationFlag{
+		Name:    "crawl-timeout",
+		Aliases: []string{"ct"},
+		Usage:   "crawlergo will not crawl these URLs matched by regular expressions. e.g.: --ct 10m",
 	}
 }
 

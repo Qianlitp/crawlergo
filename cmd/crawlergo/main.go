@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/Qianlitp/crawlergo/pkg"
 	"github.com/Qianlitp/crawlergo/pkg/config"
@@ -60,7 +61,6 @@ var (
 	postData                string
 	signalChan              chan os.Signal
 	ignoreKeywords          *cli.StringSlice
-	ignorePatterns          *cli.StringSlice
 	customFormTypeValues    *cli.StringSlice
 	customFormKeywordValues *cli.StringSlice
 	pushAddress             string
@@ -176,6 +176,7 @@ func run(c *cli.Context) error {
 	}
 
 	go handleExit(task)
+	go handleTimeout(task, c.Duration("crawl-timeout"))
 	logger.Logger.Info("Start crawling.")
 	task.Run()
 	result := task.Result
@@ -311,6 +312,17 @@ func handleExit(t *pkg.CrawlerTask) {
 	t.Pool.Release()
 	t.Browser.Close()
 	os.Exit(-1)
+}
+
+func handleTimeout(t *pkg.CrawlerTask, d time.Duration) {
+	if d == 0 {
+		d = time.Minute * 10
+	}
+	logger.Logger.Info(fmt.Sprintf("Crawling with timeout=%s", d))
+	time.Sleep(d)
+	fmt.Println("Timeout exit ...")
+	t.Pool.Release()
+	t.Browser.Close()
 }
 
 func getJsonSerialize(result *pkg.Result) []byte {
