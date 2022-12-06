@@ -211,28 +211,29 @@ func SetIgnoreUrlKeywords() *cli.StringSliceFlag {
 	return &cli.StringSliceFlag{
 		Name:        "ignore-url-keywords",
 		Aliases:     []string{"iuk"},
-		Value:       ignoreKeywords,
+		Value:       cli.NewStringSlice(config.DefaultIgnoreKeywords...),
 		Usage:       "crawlergo will not crawl these URLs matched by `Keywords`. e.g.: -iuk logout -iuk quit -iuk exit",
 		DefaultText: "Default [logout quit exit]",
+		Destination: ignoreKeywords,
 	}
 }
 
 func SetFormValues() *cli.StringSliceFlag {
 	return &cli.StringSliceFlag{
-		Name:    "form-values",
-		Aliases: []string{"fv"},
-		Value:   customFormTypeValues,
-		Usage:   "custom filling text for each form type. e.g.: -fv username=crawlergo_nice -fv password=admin123",
+		Name:        "form-values",
+		Aliases:     []string{"fv"},
+		Usage:       "custom filling text for each form type. e.g.: -fv username=crawlergo_nice -fv password=admin123",
+		Destination: customFormTypeValues,
 	}
 }
 
 // 根据关键词自行选择填充文本
 func SetFormKeywordValue() *cli.StringSliceFlag {
 	return &cli.StringSliceFlag{
-		Name:    "form-keyword-values",
-		Aliases: []string{"fkv"},
-		Value:   customFormKeywordValues,
-		Usage:   "custom filling text, fuzzy matched by keyword. e.g.: -fkv user=crawlergo_nice -fkv pass=admin123",
+		Name:        "form-keyword-values",
+		Aliases:     []string{"fkv"},
+		Usage:       "custom filling text, fuzzy matched by keyword. e.g.: -fkv user=crawlergo_nice -fkv pass=admin123",
+		Destination: customFormKeywordValues,
 	}
 }
 

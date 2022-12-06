@@ -58,9 +58,9 @@ var (
 	outputMode              string
 	postData                string
 	signalChan              chan os.Signal
-	ignoreKeywords          *cli.StringSlice
-	customFormTypeValues    *cli.StringSlice
-	customFormKeywordValues *cli.StringSlice
+	ignoreKeywords          = cli.NewStringSlice(config.DefaultIgnoreKeywords...)
+	customFormTypeValues    = cli.NewStringSlice()
+	customFormKeywordValues = cli.NewStringSlice()
 	pushAddress             string
 	pushProxyPoolMax        int
 	pushProxyWG             sync.WaitGroup
@@ -75,9 +75,9 @@ func main() {
 		Email: "9ian1itp@gmail.com",
 	}
 
-	ignoreKeywords = cli.NewStringSlice(config.DefaultIgnoreKeywords...)
-	customFormTypeValues = cli.NewStringSlice()
-	customFormKeywordValues = cli.NewStringSlice()
+	//ignoreKeywords = cli.NewStringSlice(config.DefaultIgnoreKeywords...)
+	//customFormTypeValues = cli.NewStringSlice()
+	//customFormKeywordValues = cli.NewStringSlice()
 
 	app := &cli.App{
 		Name:      "crawlergo",
@@ -98,7 +98,6 @@ func main() {
 func run(c *cli.Context) error {
 	signalChan = make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
-
 	if c.Args().Len() == 0 {
 		logger.Logger.Error("url must be set")
 		return errors.New("url must be set")
