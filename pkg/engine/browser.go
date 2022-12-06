@@ -25,8 +25,6 @@ func InitBrowser(chromiumPath string, extraHeaders map[string]interface{}, proxy
 	var bro Browser
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 
-		// 执行路径
-		chromedp.ExecPath(chromiumPath),
 		// 无头模式
 		chromedp.Flag("headless", !noHeadless),
 		// https://github.com/chromedp/chromedp/issues/997#issuecomment-1030596050
@@ -57,6 +55,12 @@ func InitBrowser(chromiumPath string, extraHeaders map[string]interface{}, proxy
 	// 设置浏览器代理
 	if proxy != "" {
 		opts = append(opts, chromedp.ProxyServer(proxy))
+	}
+
+	if len(chromiumPath) > 0 {
+
+		// 指定执行路径
+		opts = append(opts, chromedp.ExecPath(chromiumPath))
 	}
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
