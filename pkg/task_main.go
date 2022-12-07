@@ -60,9 +60,9 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 		_newURL := *_newReq.URL
 		newReq.URL = &_newURL
 		if targets[0].URL.Scheme == "http" {
-			newReq.URL.Scheme = "https"
-		} else {
 			newReq.URL.Scheme = "http"
+		} else {
+			newReq.URL.Scheme = "https"
 		}
 		targets = append(targets, newReq)
 	}
