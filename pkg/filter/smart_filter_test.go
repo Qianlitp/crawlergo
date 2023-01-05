@@ -31,11 +31,10 @@ var (
 	// completeUrls = []string{
 	// 	"https://test.local.com:1234/adfatd/123456/sx14xi?user=crawlergo&pwd=fa1424&end=1#/user/info",
 	// }
-	smart = SmartFilter{}
+	smart = NewSmartFilter(NewSimpleFilter(""), true)
 )
 
 func TestDoFilter_countFragment(t *testing.T) {
-	smart.Init()
 	reqs := []model.Request{}
 	for _, fu := range fragmentUrls {
 		url, err := model.GetUrl(fu)

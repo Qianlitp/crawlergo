@@ -6,6 +6,7 @@ import (
 
 	"github.com/Qianlitp/crawlergo/pkg/config"
 	engine2 "github.com/Qianlitp/crawlergo/pkg/engine"
+	"github.com/Qianlitp/crawlergo/pkg/filter"
 	filter2 "github.com/Qianlitp/crawlergo/pkg/filter"
 	"github.com/Qianlitp/crawlergo/pkg/logger"
 	"github.com/Qianlitp/crawlergo/pkg/model"
@@ -14,16 +15,16 @@ import (
 )
 
 type CrawlerTask struct {
-	Browser       *engine2.Browser    //
-	RootDomain    string              // 当前爬取根域名 用于子域名收集
-	Targets       []*model.Request    // 输入目标
-	Result        *Result             // 最终结果
-	Config        *TaskConfig         // 配置信息
-	smartFilter   filter2.SmartFilter // 过滤对象
-	Pool          *ants.Pool          // 协程池
-	taskWG        sync.WaitGroup      // 等待协程池所有任务结束
-	crawledCount  int                 // 爬取过的数量
-	taskCountLock sync.Mutex          // 已爬取的任务总数锁
+	Browser       *engine2.Browser     //
+	RootDomain    string               // 当前爬取根域名 用于子域名收集
+	Targets       []*model.Request     // 输入目标
+	Result        *Result              // 最终结果
+	Config        *TaskConfig          // 配置信息
+	filter        filter.FilterHandler // 过滤对象
+	Pool          *ants.Pool           // 协程池
+	taskWG        sync.WaitGroup       // 等待协程池所有任务结束
+	crawledCount  int                  // 爬取过的数量
+	taskCountLock sync.Mutex           // 已爬取的任务总数锁
 }
 
 type Result struct {
@@ -40,18 +41,26 @@ type tabTask struct {
 	req         *model.Request
 }
 
-/**
+/*
+*
 新建爬虫任务
 */
 func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask, error) {
 	crawlerTask := CrawlerTask{
 		Result: &Result{},
 		Config: &taskConf,
-		smartFilter: filter2.SmartFilter{
-			SimpleFilter: filter2.SimpleFilter{
-				HostLimit: targets[0].URL.Host,
-			},
-		},
+	}
+
+	baseFilter := filter.NewSimpleFilter(targets[0].URL.Host)
+
+	if taskConf.FilterMode == config.SmartFilterMode {
+		crawlerTask.filter = filter.NewSmartFilter(baseFilter, false)
+
+	} else if taskConf.FilterMode == config.StrictFilterMode {
+		crawlerTask.filter = filter.NewSmartFilter(baseFilter, true)
+
+	} else {
+		crawlerTask.filter = baseFilter
 	}
 
 	if len(targets) == 1 {
@@ -98,8 +107,6 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 	crawlerTask.Browser = engine2.InitBrowser(taskConf.ChromiumPath, taskConf.ExtraHeaders, taskConf.Proxy, taskConf.NoHeadless)
 	crawlerTask.RootDomain = targets[0].URL.RootDomain()
 
-	crawlerTask.smartFilter.Init()
-
 	// 创建协程池
 	p, _ := ants.NewPool(taskConf.MaxTabsCount)
 	crawlerTask.Pool = p
@@ -107,7 +114,8 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 	return &crawlerTask, nil
 }
 
-/**
+/*
+*
 根据请求列表生成tabTask协程任务列表
 */
 func (t *CrawlerTask) generateTabTask(req *model.Request) *tabTask {
@@ -119,7 +127,8 @@ func (t *CrawlerTask) generateTabTask(req *model.Request) *tabTask {
 	return &task
 }
 
-/**
+/*
+*
 开始当前任务
 */
 func (t *CrawlerTask) Run() {
@@ -148,7 +157,7 @@ func (t *CrawlerTask) Run() {
 
 	var initTasks []*model.Request
 	for _, req := range t.Targets {
-		if t.smartFilter.DoFilter(req) {
+		if t.filter.DoFilter(req) {
 			logger.Logger.Debugf("filter req: " + req.URL.RequestURI())
 			continue
 		}
@@ -183,7 +192,8 @@ func (t *CrawlerTask) Run() {
 	t.Result.SubDomainList = SubDomainCollect(t.Result.AllReqList, t.RootDomain)
 }
 
-/**
+/*
+*
 添加任务到协程池
 添加之前实时过滤
 */
@@ -208,7 +218,8 @@ func (t *CrawlerTask) addTask2Pool(req *model.Request) {
 	}()
 }
 
-/**
+/*
+*
 单个运行的tab标签任务，实现了workpool的接口
 */
 func (t *tabTask) Task() {
@@ -232,23 +243,12 @@ func (t *tabTask) Task() {
 	t.crawlerTask.Result.resultLock.Unlock()
 
 	for _, req := range tab.ResultList {
-		if t.crawlerTask.Config.FilterMode == config.SimpleFilterMode {
-			if !t.crawlerTask.smartFilter.SimpleFilter.DoFilter(req) {
-				t.crawlerTask.Result.resultLock.Lock()
-				t.crawlerTask.Result.ReqList = append(t.crawlerTask.Result.ReqList, req)
-				t.crawlerTask.Result.resultLock.Unlock()
-				if !engine2.IsIgnoredByKeywordMatch(*req, t.crawlerTask.Config.IgnoreKeywords) {
-					t.crawlerTask.addTask2Pool(req)
-				}
-			}
-		} else {
-			if !t.crawlerTask.smartFilter.DoFilter(req) {
-				t.crawlerTask.Result.resultLock.Lock()
-				t.crawlerTask.Result.ReqList = append(t.crawlerTask.Result.ReqList, req)
-				t.crawlerTask.Result.resultLock.Unlock()
-				if !engine2.IsIgnoredByKeywordMatch(*req, t.crawlerTask.Config.IgnoreKeywords) {
-					t.crawlerTask.addTask2Pool(req)
-				}
+		if !t.crawlerTask.filter.DoFilter(req) {
+			t.crawlerTask.Result.resultLock.Lock()
+			t.crawlerTask.Result.ReqList = append(t.crawlerTask.Result.ReqList, req)
+			t.crawlerTask.Result.resultLock.Unlock()
+			if !engine2.IsIgnoredByKeywordMatch(*req, t.crawlerTask.Config.IgnoreKeywords) {
+				t.crawlerTask.addTask2Pool(req)
 			}
 		}
 	}
