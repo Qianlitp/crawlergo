@@ -3,6 +3,7 @@ package pkg
 import (
 	"encoding/json"
 	"sync"
+	"time"
 
 	"github.com/Qianlitp/crawlergo/pkg/config"
 	engine2 "github.com/Qianlitp/crawlergo/pkg/engine"
@@ -24,6 +25,7 @@ type CrawlerTask struct {
 	taskWG        sync.WaitGroup      // 等待协程池所有任务结束
 	crawledCount  int                 // 爬取过的数量
 	taskCountLock sync.Mutex          // 已爬取的任务总数锁
+	Start         time.Time           //开始时间
 }
 
 type Result struct {
@@ -40,7 +42,8 @@ type tabTask struct {
 	req         *model.Request
 }
 
-/**
+/*
+*
 新建爬虫任务
 */
 func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask, error) {
@@ -107,7 +110,8 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 	return &crawlerTask, nil
 }
 
-/**
+/*
+*
 根据请求列表生成tabTask协程任务列表
 */
 func (t *CrawlerTask) generateTabTask(req *model.Request) *tabTask {
@@ -119,13 +123,15 @@ func (t *CrawlerTask) generateTabTask(req *model.Request) *tabTask {
 	return &task
 }
 
-/**
+/*
+*
 开始当前任务
 */
 func (t *CrawlerTask) Run() {
 	defer t.Pool.Release()  // 释放协程池
 	defer t.Browser.Close() // 关闭浏览器
 
+	t.Start = time.Now()
 	if t.Config.PathFromRobots {
 		reqsFromRobots := GetPathsFromRobots(*t.Targets[0])
 		logger.Logger.Info("get paths from robots.txt: ", len(reqsFromRobots))
@@ -183,7 +189,8 @@ func (t *CrawlerTask) Run() {
 	t.Result.SubDomainList = SubDomainCollect(t.Result.AllReqList, t.RootDomain)
 }
 
-/**
+/*
+*
 添加任务到协程池
 添加之前实时过滤
 */
@@ -194,6 +201,11 @@ func (t *CrawlerTask) addTask2Pool(req *model.Request) {
 		return
 	} else {
 		t.crawledCount += 1
+	}
+
+	if t.Start.Add(time.Second * time.Duration(t.Config.MaxRunTime)).Before(time.Now()) {
+		t.taskCountLock.Unlock()
+		return
 	}
 	t.taskCountLock.Unlock()
 
@@ -208,13 +220,26 @@ func (t *CrawlerTask) addTask2Pool(req *model.Request) {
 	}()
 }
 
-/**
+/*
+*
 单个运行的tab标签任务，实现了workpool的接口
 */
 func (t *tabTask) Task() {
 	defer t.crawlerTask.taskWG.Done()
+
+	// 设置tab超时时间，若设置了程序最大运行时间， tab超时时间和程序剩余时间取小
+	timeremaining := t.crawlerTask.Start.Add(time.Duration(t.crawlerTask.Config.MaxRunTime) * time.Second).Sub(time.Now())
+	tabTime := t.crawlerTask.Config.TabRunTimeout
+	if t.crawlerTask.Config.TabRunTimeout > timeremaining {
+		tabTime = timeremaining
+	}
+
+	if tabTime <= 0 {
+		return
+	}
+
 	tab := engine2.NewTab(t.browser, *t.req, engine2.TabConfig{
-		TabRunTimeout:           t.crawlerTask.Config.TabRunTimeout,
+		TabRunTimeout:           tabTime,
 		DomContentLoadedTimeout: t.crawlerTask.Config.DomContentLoadedTimeout,
 		EventTriggerMode:        t.crawlerTask.Config.EventTriggerMode,
 		EventTriggerInterval:    t.crawlerTask.Config.EventTriggerInterval,
