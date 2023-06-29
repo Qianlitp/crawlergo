@@ -20,6 +20,7 @@ const (
 	BeforeExitDelay         = 1 * time.Second
 	DefaultEventTriggerMode = EventTriggerAsync
 	MaxCrawlCount           = 200
+	MaxRunTime              = 60 * 60
 )
 
 // 请求方法

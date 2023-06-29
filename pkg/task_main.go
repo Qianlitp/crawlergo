@@ -3,6 +3,7 @@ package pkg
 import (
 	"encoding/json"
 	"sync"
+	"time"
 
 	"github.com/Qianlitp/crawlergo/pkg/config"
 	engine2 "github.com/Qianlitp/crawlergo/pkg/engine"
@@ -15,6 +16,7 @@ import (
 )
 
 type CrawlerTask struct {
+
 	Browser       *engine2.Browser     //
 	RootDomain    string               // 当前爬取根域名 用于子域名收集
 	Targets       []*model.Request     // 输入目标
@@ -25,6 +27,8 @@ type CrawlerTask struct {
 	taskWG        sync.WaitGroup       // 等待协程池所有任务结束
 	crawledCount  int                  // 爬取过的数量
 	taskCountLock sync.Mutex           // 已爬取的任务总数锁
+  Start         time.Time           //开始时间
+
 }
 
 type Result struct {
@@ -135,6 +139,7 @@ func (t *CrawlerTask) Run() {
 	defer t.Pool.Release()  // 释放协程池
 	defer t.Browser.Close() // 关闭浏览器
 
+	t.Start = time.Now()
 	if t.Config.PathFromRobots {
 		reqsFromRobots := GetPathsFromRobots(*t.Targets[0])
 		logger.Logger.Info("get paths from robots.txt: ", len(reqsFromRobots))
@@ -205,6 +210,11 @@ func (t *CrawlerTask) addTask2Pool(req *model.Request) {
 	} else {
 		t.crawledCount += 1
 	}
+
+	if t.Start.Add(time.Second * time.Duration(t.Config.MaxRunTime)).Before(time.Now()) {
+		t.taskCountLock.Unlock()
+		return
+	}
 	t.taskCountLock.Unlock()
 
 	t.taskWG.Add(1)
@@ -224,8 +234,20 @@ func (t *CrawlerTask) addTask2Pool(req *model.Request) {
 */
 func (t *tabTask) Task() {
 	defer t.crawlerTask.taskWG.Done()
+
+	// 设置tab超时时间，若设置了程序最大运行时间， tab超时时间和程序剩余时间取小
+	timeremaining := t.crawlerTask.Start.Add(time.Duration(t.crawlerTask.Config.MaxRunTime) * time.Second).Sub(time.Now())
+	tabTime := t.crawlerTask.Config.TabRunTimeout
+	if t.crawlerTask.Config.TabRunTimeout > timeremaining {
+		tabTime = timeremaining
+	}
+
+	if tabTime <= 0 {
+		return
+	}
+
 	tab := engine2.NewTab(t.browser, *t.req, engine2.TabConfig{
-		TabRunTimeout:           t.crawlerTask.Config.TabRunTimeout,
+		TabRunTimeout:           tabTime,
 		DomContentLoadedTimeout: t.crawlerTask.Config.DomContentLoadedTimeout,
 		EventTriggerMode:        t.crawlerTask.Config.EventTriggerMode,
 		EventTriggerInterval:    t.crawlerTask.Config.EventTriggerInterval,

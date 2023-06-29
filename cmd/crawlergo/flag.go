@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/Qianlitp/crawlergo/pkg/config"
 	"github.com/urfave/cli/v2"
 )
@@ -33,6 +34,7 @@ var cliFlags = []cli.Flag{
 	SetPushPoolMax(),
 	SetLogLevel(),
 	SetNoHeadless(),
+	SetMaxTime(),
 }
 
 func SetChromePath() *cli.PathFlag {
@@ -145,12 +147,12 @@ func SetRequestProxy() *cli.StringFlag {
 	}
 }
 
-// return &cli.BoolFlag{
-//	Name:        "bypass",
-//	Value:       false,
-//	Usage:       "whether to encode url with detected charset.",
-//	Destination: &taskConfig.EncodeURLWithCharset,
-//},
+//	return &cli.BoolFlag{
+//		Name:        "bypass",
+//		Value:       false,
+//		Usage:       "whether to encode url with detected charset.",
+//		Destination: &taskConfig.EncodeURLWithCharset,
+//	},
 func SetEncodeURL() *cli.BoolFlag {
 	return &cli.BoolFlag{
 		Name:        "encode-url",
@@ -268,5 +270,14 @@ func SetNoHeadless() *cli.BoolFlag {
 		Value:       false,
 		Usage:       "no headless mode",
 		Destination: &taskConfig.NoHeadless,
+	}
+}
+
+func SetMaxTime() *cli.Int64Flag {
+	return &cli.Int64Flag{
+		Name:        "max-run-time",
+		Usage:       "the `Timeout` of the task.",
+		Value:       config.MaxRunTime,
+		Destination: &taskConfig.MaxRunTime,
 	}
 }
