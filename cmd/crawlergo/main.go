@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/Qianlitp/crawlergo/pkg"
 	"github.com/Qianlitp/crawlergo/pkg/config"
@@ -152,8 +153,8 @@ func run(c *cli.Context) error {
 		os.Exit(-1)
 	}
 	if len(targets) != 0 {
-		logger.Logger.Info(fmt.Sprintf("Init crawler task, host: %s, max tab count: %d, max crawl count: %d.",
-			targets[0].URL.Host, taskConfig.MaxTabsCount, taskConfig.MaxCrawlCount))
+		logger.Logger.Infof("Init crawler task, host: %s, max tab count: %d, max crawl count: %d, max runtime: %ds",
+			targets[0].URL.Host, taskConfig.MaxTabsCount, taskConfig.MaxCrawlCount, taskConfig.MaxRunTime)
 		logger.Logger.Info("filter mode: ", taskConfig.FilterMode)
 	}
 
@@ -175,8 +176,8 @@ func run(c *cli.Context) error {
 	task.Run()
 	result := task.Result
 
-	logger.Logger.Info(fmt.Sprintf("Task finished, %d results, %d requests, %d subdomains, %d domains found.",
-		len(result.ReqList), len(result.AllReqList), len(result.SubDomainList), len(result.AllDomainList)))
+	logger.Logger.Infof("Task finished, %d results, %d requests, %d subdomains, %d domains found, runtime: %d",
+		len(result.ReqList), len(result.AllReqList), len(result.SubDomainList), len(result.AllDomainList), time.Now().Unix()-task.Start.Unix())
 
 	// 内置请求代理
 	if pushAddress != "" {
@@ -254,7 +255,8 @@ func outputResult(result *pkg.Result) {
 	}
 }
 
-/**
+/*
+*
 原生被动代理推送支持
 */
 func Push2Proxy(reqList []*model2.Request) {
@@ -277,7 +279,8 @@ func Push2Proxy(reqList []*model2.Request) {
 	pushProxyWG.Wait()
 }
 
-/**
+/*
+*
 协程池请求的任务
 */
 func (p *ProxyTask) doRequest() {
