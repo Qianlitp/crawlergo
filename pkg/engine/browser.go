@@ -80,6 +80,25 @@ func InitBrowser(chromiumPath string, extraHeaders map[string]interface{}, proxy
 	return &bro
 }
 
+func ConnectBrowser(wsUrl string, extraHeaders map[string]interface{}) *Browser {
+	var bro Browser
+	allocCtx, cancel := chromedp.NewRemoteAllocator(context.Background(), wsUrl)
+	bctx, _ := chromedp.NewContext(allocCtx,
+		chromedp.WithLogf(log.Printf),
+	)
+
+	err := chromedp.Run(bctx)
+	if err != nil {
+		// couldn't connect to the remote browser, need to exit
+		logger.Logger.Fatal("chromedp run error: ", err.Error())
+	}
+	bro.Cancel = &cancel
+	bro.Ctx = &bctx
+	bro.ExtraHeaders = extraHeaders
+
+	return &bro
+}
+
 func (bro *Browser) NewTab(timeout time.Duration) (*context.Context, context.CancelFunc) {
 	bro.lock.Lock()
 	ctx, cancel := chromedp.NewContext(*bro.Ctx)

@@ -40,7 +40,8 @@ type tabTask struct {
 	req         *model.Request
 }
 
-/**
+/*
+*
 新建爬虫任务
 */
 func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask, error) {
@@ -95,7 +96,11 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 		}
 	}
 
-	crawlerTask.Browser = engine2.InitBrowser(taskConf.ChromiumPath, taskConf.ExtraHeaders, taskConf.Proxy, taskConf.NoHeadless)
+	if len(taskConf.ChromiumWSUrl) > 0 {
+		crawlerTask.Browser = engine2.ConnectBrowser(taskConf.ChromiumWSUrl, taskConf.ExtraHeaders)
+	} else {
+		crawlerTask.Browser = engine2.InitBrowser(taskConf.ChromiumPath, taskConf.ExtraHeaders, taskConf.Proxy, taskConf.NoHeadless)
+	}
 	crawlerTask.RootDomain = targets[0].URL.RootDomain()
 
 	crawlerTask.smartFilter.Init()
@@ -107,7 +112,8 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 	return &crawlerTask, nil
 }
 
-/**
+/*
+*
 根据请求列表生成tabTask协程任务列表
 */
 func (t *CrawlerTask) generateTabTask(req *model.Request) *tabTask {
@@ -119,7 +125,8 @@ func (t *CrawlerTask) generateTabTask(req *model.Request) *tabTask {
 	return &task
 }
 
-/**
+/*
+*
 开始当前任务
 */
 func (t *CrawlerTask) Run() {
@@ -183,7 +190,8 @@ func (t *CrawlerTask) Run() {
 	t.Result.SubDomainList = SubDomainCollect(t.Result.AllReqList, t.RootDomain)
 }
 
-/**
+/*
+*
 添加任务到协程池
 添加之前实时过滤
 */
@@ -208,7 +216,8 @@ func (t *CrawlerTask) addTask2Pool(req *model.Request) {
 	}()
 }
 
-/**
+/*
+*
 单个运行的tab标签任务，实现了workpool的接口
 */
 func (t *tabTask) Task() {
