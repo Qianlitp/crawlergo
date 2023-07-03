@@ -108,7 +108,11 @@ func NewCrawlerTask(targets []*model.Request, taskConf TaskConfig) (*CrawlerTask
 		}
 	}
 
-	crawlerTask.Browser = engine2.InitBrowser(taskConf.ChromiumPath, taskConf.ExtraHeaders, taskConf.Proxy, taskConf.NoHeadless)
+	if len(taskConf.ChromiumWSUrl) > 0 {
+		crawlerTask.Browser = engine2.ConnectBrowser(taskConf.ChromiumWSUrl, taskConf.ExtraHeaders)
+	} else {
+		crawlerTask.Browser = engine2.InitBrowser(taskConf.ChromiumPath, taskConf.ExtraHeaders, taskConf.Proxy, taskConf.NoHeadless)
+	}
 	crawlerTask.RootDomain = targets[0].URL.RootDomain()
 
 	// 创建协程池
