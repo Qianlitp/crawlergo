@@ -7,7 +7,7 @@ import subprocess
     添加Cookie扫描示例
     
     命令行调用时：
-    ./crawlergo -c /home/test/chrome-linux/chrome -o json --ignore-url-keywords quit,exit,zhuxiao --custom-headers "{\"Cookie\": \"crawlergo=Cool\"}"
+    ./crawlergo -c /home/test/chrome-linux/chrome -o json --ignore-url-keywords quit,exit,zhuxiao,logout --custom-headers "{\"Cookie\": \"crawlergo=Cool\"}"
 
     使用 --ignore-url-keywords 添加你想要的排除的关键字，避免访问注销请求
 """
@@ -21,7 +21,7 @@ def main():
         "Cookie": "crawlergo=Cool"
     }
     cmd = ["./crawlergo", "-c", "/home/test/chrome-linux/chrome",
-           "-o", "json", "--ignore-url-keywords", "quit,exit,zhuxiao", "--custom-headers", simplejson.dumps(headers),
+           "-o", "json", "--ignore-url-keywords", "quit,exit,zhuxiao,logout", "--custom-headers", simplejson.dumps(headers),
            target]
 
     rsp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
