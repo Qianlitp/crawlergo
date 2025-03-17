@@ -392,17 +392,17 @@ func MarkPath(path string) string {
 全局数值型参数过滤
 */
 func (s *SmartFilter) globalFilterLocationMark(req *model.Request) {
-	name := req.URL.Hostname() + req.URL.Path + req.Method
+	base := req.URL.Hostname() + req.URL.Path + req.Method
 	if req.Method == config.GET || req.Method == config.DELETE || req.Method == config.HEAD || req.Method == config.OPTIONS {
 		for key := range req.Filter.MarkedQueryMap {
-			name += key
+			name := base + key
 			if s.filterLocationSet.Contains(name) {
 				req.Filter.MarkedQueryMap[key] = CustomValueMark
 			}
 		}
 	} else if req.Method == config.POST || req.Method == config.PUT {
 		for key := range req.Filter.MarkedPostDataMap {
-			name += key
+			name := base + key
 			if s.filterLocationSet.Contains(name) {
 				req.Filter.MarkedPostDataMap[key] = CustomValueMark
 			}
